@@ -26,6 +26,8 @@ export interface Player {
   /** Cumulative score across games (players only). */
   score: number;
   joinedAt: number;
+  /** A computer player run by the host (no phone). */
+  bot?: boolean;
 }
 
 export interface Settings {
@@ -131,6 +133,7 @@ export function join(r: HostRoom, pid: string, rawName: string, now: number, key
     return { ok: true, key: mine.key, rejoined: true };
   }
   if (same) {
+    if (same.bot) return { ok: false, error: `"${name}" is one of the bots. Pick another name.` };
     if (r.banned.includes(same.key)) return { ok: false, error: 'That name was removed by the host.' };
     if (now - (r.lastSeen[same.key] ?? 0) < AWAY_MS) {
       return { ok: false, error: `"${name}" is already here. Pick another name, or wait a few seconds if that's you.` };
@@ -167,6 +170,7 @@ export function touch(r: HostRoom, pid: string, now: number): boolean {
 export function sweep(r: HostRoom, now: number): boolean {
   let changed = false;
   for (const p of r.pub.players) {
+    if (p.bot) continue;
     const on = now - (r.lastSeen[p.key] ?? 0) < AWAY_MS;
     if (on !== p.connected) {
       p.connected = on;
@@ -178,8 +182,8 @@ export function sweep(r: HostRoom, now: number): boolean {
 
 /** The first seated player (by join time) is VIP; the next one inherits it. */
 export function ensureVip(r: HostRoom): void {
-  const players = seated(r);
-  for (const p of r.pub.players) if (p.role !== 'player') p.vip = false;
+  const players = seated(r).filter((p) => !p.bot);
+  for (const p of r.pub.players) if (p.role !== 'player' || p.bot) p.vip = false;
   if (players.some((p) => p.vip)) return;
   const first = players.slice().sort((a, b) => a.joinedAt - b.joinedAt)[0];
   if (first) first.vip = true;
@@ -212,6 +216,29 @@ export function leave(r: HostRoom, pid: string): void {
   delete r.pids[pid];
   delete r.lastSeen[key];
   ensureVip(r);
+}
+
+export const BOT_NAMES = ['Robo Rita', 'Bolt', 'Chip', 'Sprocket', 'Widget', 'Pixel', 'Gizmo', 'Dot Matrix'];
+export const bots = (r: HostRoom): Player[] => seated(r).filter((p) => p.bot);
+
+/** Seat a computer player. Only in the lobby, and only while there's a free seat. */
+export function addBot(r: HostRoom, now: number): Player | null {
+  if (r.pub.phase !== 'lobby' || seated(r).length >= MAX_PLAYERS) return null;
+  const taken = new Set(r.pub.players.map((p) => p.name.toLowerCase()));
+  const name = BOT_NAMES.find((n) => !taken.has(n.toLowerCase())) ?? `Bot ${bots(r).length + 1}`;
+  let n = 1;
+  while (r.pub.players.some((p) => p.key === `bot${n}`)) n++;
+  const p: Player = { key: `bot${n}`, name, look: freeLook(r), role: 'player', vip: false, connected: true, score: 0, joinedAt: now, bot: true };
+  r.pub.players.push(p);
+  return p;
+}
+
+/** Remove the most recently added bot. */
+export function removeBot(r: HostRoom): boolean {
+  const b = bots(r).sort((x, y) => y.joinedAt - x.joinedAt)[0];
+  if (!b || r.pub.phase !== 'lobby') return false;
+  r.pub.players = r.pub.players.filter((p) => p !== b);
+  return true;
 }
 
 /** Back at the menu, audience members take any free seats (oldest first). */

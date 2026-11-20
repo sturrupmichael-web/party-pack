@@ -316,4 +316,44 @@ export const sauceLogic: GameLogic<SauceState> = {
     if (!s.owned[who.key]) return { audience: true };
     return { owned: s.owned[who.key], free: free(s, who.key), stack: s.stacks[who.key], out: s.out.includes(who.key) };
   },
+
+  bot: {
+    wants: (s, key) =>
+      !s.out.includes(key) &&
+      ((s.phase === 'first' && !s.stacks[key].length) || ((s.phase === 'turn' || s.phase === 'bid' || s.phase === 'taste') && s.turn === key)),
+    move: (s, key, ctx) => ({ round: s.round, ...botMove(s, key, ctx.rand) }),
+  },
 };
+
+/** How many cups a bot reckons it can taste: its own mild stack, plus a guess at the others. */
+function botReach(s: SauceState, key: string, rand: () => number): number {
+  const mine = s.stacks[key];
+  if (mine.includes('hot')) return 0;
+  const others = placed(s) - mine.length;
+  return mine.length + Math.floor(others * (0.35 + rand() * 0.25));
+}
+
+/** A simple bluffer: hides its hot cup now and then, bids what it thinks it can taste. */
+export function botMove(s: SauceState, key: string, rand: () => number): { t: string; cup?: Cup; n?: number; owner?: string } {
+  const f = free(s, key);
+  const cup = (hotChance: number): Cup => (f.hot > 0 && (f.mild === 0 || rand() < hotChance) ? 'hot' : 'mild');
+  if (s.phase === 'first') return { t: 'place', cup: cup(0.3) };
+  if (s.phase === 'turn') {
+    const reach = botReach(s, key, rand);
+    const total = placed(s);
+    const canPlace = f.mild + f.hot > 0;
+    // Keep stacking while the pile is small, or when our own stack is a trap.
+    if (canPlace && (total < s.seats.length + 1 || reach === 0 || rand() < 0.4)) return { t: 'place', cup: cup(0.25) };
+    return { t: 'bid', n: Math.max(1, Math.min(total, reach || 1)) };
+  }
+  if (s.phase === 'bid') {
+    const reach = botReach(s, key, rand);
+    const high = s.bid?.high ?? 0;
+    if (reach > high && high + 1 <= placed(s)) return { t: 'bid', n: high + 1 };
+    return { t: 'pass' };
+  }
+  // Tasting: pick from the tallest stack left (one hot among more cups is less likely on top).
+  const opts = alive(s).filter((k) => k !== s.taster && flippedOf(s, k) < s.stacks[k].length);
+  opts.sort((a, b) => s.stacks[b].length - flippedOf(s, b) - (s.stacks[a].length - flippedOf(s, a)) || rand() - 0.5);
+  return { t: 'flip', owner: opts[0] ?? key };
+}

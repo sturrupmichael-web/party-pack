@@ -40,3 +40,8 @@ export const GAMES: GameModule[] = [
 export function gameById(id: string | null | undefined): GameModule | undefined {
   return GAMES.find((g) => g.logic.id === id);
 }
+
+/** Who plays this game: everyone seated, minus bots for games bots can't play. */
+export function seatsFor<P extends { bot?: boolean }>(mod: GameModule, seatedPlayers: P[]): P[] {
+  return mod.logic.bot ? seatedPlayers : seatedPlayers.filter((p) => !p.bot);
+}

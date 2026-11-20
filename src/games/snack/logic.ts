@@ -242,4 +242,39 @@ export const snackLogic: GameLogic<SnackState> = {
     if (seat < 0) return { audience: true };
     return { hand: s.hands[seat], picked: s.picks[who.key] ?? null };
   },
+
+  bot: {
+    wants: (s, key) => s.phase === 'pick' && keys(s).includes(key) && s.picks[key] == null,
+    move: (s, key, ctx) => ({ t: 'pick', pick: s.round * 100 + s.pick, i: botPick(s, key, ctx.rand) }),
+  },
 };
+
+/**
+ * A greedy snacker: each card is worth what it adds to its spread right now,
+ * plus a little for sets it could still finish with the picks left.
+ */
+export function botPick(s: SnackState, key: string, rand: () => number): number {
+  const seat = keys(s).indexOf(key);
+  const hand = s.hands[seat];
+  const mine = s.spreads[key];
+  const left = hand.length - 1;
+  const tacos = (spread: CardId[], k: string) => (k === key ? spread : s.spreads[k]).filter((c) => c === 'taco').length;
+  const now = scoreSpread(mine, keys(s).map((k) => tacos(mine, k))).total;
+  const count = (id: CardId) => mine.filter((c) => c === id).length;
+  let best = 0;
+  let bestVal = -Infinity;
+  hand.forEach((card, i) => {
+    const next = [...mine, card];
+    let v = scoreSpread(next, keys(s).map((k) => tacos(next, k))).total - now;
+    if (card === 'cookie') v = 2.6;
+    if (card === 'pizza' && (count('pizza') % 4) + 1 < 4 && left >= 3 - (count('pizza') % 4)) v += 1.5;
+    if (card === 'pepper' && count('pepper') + 1 < 3) v = left >= 4 - count('pepper') ? 1.2 + count('pepper') * 2 : -2;
+    if (card === 'dip') v = Math.min(3, count('fries')) * 2 + (left > 2 ? 1.5 : 0);
+    v += rand() * 0.8;
+    if (v > bestVal) {
+      bestVal = v;
+      best = i;
+    }
+  });
+  return best;
+}

@@ -12,7 +12,7 @@ import '../styles/phone.css';
 import type { PhoneViewCtx, View } from '../core/game';
 import { type HostMsg, type PhoneMsg, type StatePayload, type VipAction, isRoomCode, normalizeRoomCode, pidKey, wire } from '../core/protocol';
 import { NAME_MAX, type Player, cleanName, standings } from '../core/room';
-import { GAMES, gameById } from '../games';
+import { GAMES, gameById, seatsFor } from '../games';
 import { trackPresence } from '../net/presence';
 import { type Transport, createTransport, hasSupabase } from '../net/transport';
 import { avatar, color } from '../ui/avatars';
@@ -257,21 +257,26 @@ function play(room: string, myName: string): void {
           }),
       );
     }
-    const seatedN = r.players.filter((p) => p.role === 'player').length;
+    const seatedP = r.players.filter((p) => p.role === 'player');
+    const seatedN = seatedP.length;
+    const nBots = seatedP.filter((p) => p.bot).length;
     const picked = gameById(r.picked) ?? GAMES[0];
-    const need = picked.available && seatedN < picked.logic.minPlayers ? `Needs ${picked.logic.minPlayers}+ players` : '';
+    const playing = seatsFor(picked, seatedP).length;
+    const need = picked.available && playing < picked.logic.minPlayers ? `Needs ${picked.logic.minPlayers}+ players${nBots && !picked.logic.bot ? ' (no bots)' : ''}` : '';
     mountScreen(
-      `vip:${r.picked}:${seatedN}`,
+      `vip:${r.picked}:${seatedN}:${nBots}`,
       `<div class="screen vip-menu">
-        <p class="kicker">👑 You're the VIP: pick a game</p>
+        <div class="vip-head"><p class="kicker">👑 Pick a game</p>
+        <span class="bot-ctl"><button class="btn small" data-bot="-" ${nBots ? '' : 'disabled'}>−</button><b>🤖 ${nBots}</b><button class="btn small" data-bot="+" ${seatedN >= 8 ? 'disabled' : ''}>+</button></span></div>
         <div class="glist">${GAMES.filter((g) => g.available).map(
-          (g) => `<button class="gbtn ${g.logic.id === r.picked ? 'on' : ''}" data-g="${g.logic.id}" ${g.available ? '' : 'disabled'} style="--ac:${g.accent}"><span>${g.icon}</span><b>${esc(g.logic.title)}</b><small>${g.available ? esc(g.logic.tagline) : 'Coming soon'}</small></button>`,
+          (g) => `<button class="gbtn ${g.logic.id === r.picked ? 'on' : ''}" data-g="${g.logic.id}" ${g.available ? '' : 'disabled'} style="--ac:${g.accent}"><span>${g.icon}</span><b>${esc(g.logic.title)}${g.logic.bot ? ' <i class="botok">🤖</i>' : ''}</b><small>${g.available ? esc(g.logic.tagline) : 'Coming soon'}</small></button>`,
         ).join('')}</div>
         <button class="btn primary huge" data-start ${need || !picked.available ? 'disabled' : ''}>${need || `Start ${esc(picked.logic.title)}`}</button>
       </div>`,
       (b) => {
         b.querySelectorAll<HTMLButtonElement>('[data-g]').forEach((x) => x.addEventListener('click', () => vip({ act: 'pick', gameId: x.dataset.g! })));
         b.querySelector('[data-start]')?.addEventListener('click', () => vip({ act: 'start' }));
+        b.querySelectorAll<HTMLButtonElement>('[data-bot]').forEach((x) => x.addEventListener('click', () => vip({ act: x.dataset.bot === '+' ? 'addBot' : 'removeBot' })));
       },
     );
   }

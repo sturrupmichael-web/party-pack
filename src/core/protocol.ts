@@ -7,7 +7,7 @@
  *    join   { name }          join or rejoin (same device or same name gets the same seat)
  *    leave  {}                leave the lobby
  *    input  { inst, data }    a game input; inst is the game instance it was meant for
- *    vip    VipAction         VIP controls: pick / start / skip / menu
+ *    vip    VipAction         VIP controls: pick / start / skip / menu / addBot / removeBot
  *
  *  host → phones
  *    state  StatePayload      public room + game state, plus each phone's private slice
@@ -31,7 +31,7 @@ export interface Wire<T extends string = string, P = unknown> {
   ts: number;
 }
 
-export type VipAction = { act: 'pick'; gameId: string } | { act: 'start' } | { act: 'skip' } | { act: 'menu' };
+export type VipAction = { act: 'pick'; gameId: string } | { act: 'start' } | { act: 'skip' } | { act: 'menu' } | { act: 'addBot' } | { act: 'removeBot' };
 
 export type PhoneMsg =
   | Wire<'hello', { sync: boolean }>

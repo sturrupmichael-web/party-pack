@@ -140,7 +140,7 @@ export const tumbleViews: GameViews = {
       };
       const turnName = esc(who(c.players, p.turn)?.name ?? '');
       el.querySelector('.td-banner')!.innerHTML =
-        p.phase === 'roll' ? `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b> flicks!` : `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b>, flick from your phone`;
+        p.phase === 'roll' ? `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b> flicks!` : `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b>${who(c.players, p.turn)?.bot ? ' 🤖 is lining up a shot…' : ', flick from your phone'}`;
       el.querySelector('.td-rules')?.classList.toggle('hide', !(p.round === 1 && !p.dice.length && !p.anim));
       el.querySelector('.td-strip')!.innerHTML = strip(c.players, p);
       if (p.anim && p.anim.id !== animId) {

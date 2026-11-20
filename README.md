@@ -35,6 +35,9 @@ Served at **https://michaelsturrup.com/party-pack/**:
    <kbd>Esc</kbd> twice to quit a game back to the menu. During a game the VIP has Skip and Menu buttons.
 4. After each game the TV shows that game's points and the running total. Continue goes back to the menu;
    nobody has to rejoin.
+5. **Playing solo or short-handed?** Add bots with **🤖 Add bot** on the TV or the 🤖 − / + on the VIP's phone.
+   Bots play Tumble Steps, Hot Sauce and Snack Swap (marked 🤖); other games simply leave them out.
+   A game adds bots by giving its logic a `bot: { wants, move }` (see `src/core/game.ts`).
 
 - **Late joiners** become the **audience**: they can play along and vote but don't score. They get a seat at
   the menu if there's room (8 seats).

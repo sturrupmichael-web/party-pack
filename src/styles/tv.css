@@ -341,3 +341,10 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .td-chip.turn { border-color: var(--pc); box-shadow: 0 0 24px color-mix(in srgb, var(--pc) 50%, transparent); }
 .cv-team li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
 .lock-row.mid { margin: auto 0; }
+
+/* bots */
+.lobby-right h2 { display: flex; align-items: baseline; gap: 12px; }
+.bot-ctl { margin-left: auto; display: flex; gap: 10px; }
+.bot-ctl .btn { font-size: 20px; }
+.slot.bot { border-style: dotted; }
+.slot.bot .crown { color: var(--blue); }

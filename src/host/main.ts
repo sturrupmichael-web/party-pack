@@ -12,13 +12,16 @@ import {
   type HostRoom,
   type Player,
   type TimerMode,
+  addBot,
   applyResult,
+  bots,
   isVip,
   join,
   kick,
   leave,
   newRoom,
   playerByKey,
+  removeBot,
   resetScores,
   seatAudience,
   seated,
@@ -27,7 +30,7 @@ import {
   touch,
 } from '../core/room';
 import { mulberry32 } from '../core/rng';
-import { GAMES, gameById } from '../games';
+import { GAMES, gameById, seatsFor } from '../games';
 import { trackPresence } from '../net/presence';
 import { type Transport, createTransport, hasSupabase } from '../net/transport';
 import { avatar, color } from '../ui/avatars';
@@ -209,6 +212,32 @@ function onMessage(raw: unknown): void {
   }
 }
 
+// ---- Bots ---------------------------------------------------------------------------
+/** When each bot will act on the decision in front of it (host clock). */
+let botDue: Record<string, number> = {};
+
+/** Let any bot whose turn it is "think" for a moment, then send its move. */
+function driveBots(now: number): boolean {
+  const g = game;
+  const brain = g?.mod.logic.bot;
+  if (!g || !brain) return false;
+  let changed = false;
+  for (const b of bots(room)) {
+    if (!brain.wants(g.state, b.key)) {
+      delete botDue[b.key];
+      continue;
+    }
+    if (botDue[b.key] == null) {
+      botDue[b.key] = now + 900 + Math.random() * 1600;
+      continue;
+    }
+    if (now < botDue[b.key]) continue;
+    delete botDue[b.key];
+    if (g.mod.logic.onInput(g.state, whoOf(b), brain.move(g.state, b.key, ctx()), ctx())) changed = true;
+  }
+  return changed;
+}
+
 // ---- Flow ------------------------------------------------------------------------
 function afterChange(): void {
   if (game && game.mod.logic.isOver(game.state)) return finishGame();
@@ -239,17 +268,27 @@ function doAction(a: VipAction, fromKey?: string): void {
     case 'menu':
       if (room.pub.phase !== 'lobby') toLobby();
       return;
+    case 'addBot':
+      if (room.pub.phase !== 'lobby') return;
+      if (!addBot(room, Date.now())) return say('All 8 seats are taken.');
+      sfx.join();
+      return broadcast();
+    case 'removeBot':
+      if (removeBot(room)) broadcast();
+      return;
   }
 }
 
 function startGame(say: (t: string) => void): void {
   const mod = gameById(room.pub.picked);
   if (!mod || !mod.available) return say('That game is coming in a later update.');
-  const players = seated(room);
+  const players = seatsFor(mod, seated(room));
   const { minPlayers, maxPlayers, title } = mod.logic;
-  if (players.length < minPlayers) return say(`${title} needs at least ${minPlayers} players.`);
+  if (!players.some((p) => !p.bot)) return say('Someone needs to join on a phone first.');
+  if (players.length < minPlayers) return say(`${title} needs at least ${minPlayers} players${bots(room).length && !mod.logic.bot ? " (bots can't play this one)" : ''}.`);
   const seats = players.slice(0, maxPlayers).map((p) => ({ key: p.key, name: p.name }));
   game = { mod, state: mod.logic.setup(seats, ctx()) };
+  botDue = {};
   room.pub.phase = 'game';
   room.pub.gameId = mod.logic.id;
   room.pub.inst = Math.random().toString(36).slice(2, 10);
@@ -362,7 +401,7 @@ function renderCorner(): void {
 
 function playerSlot(p: Player | undefined): string {
   if (!p) return `<div class="slot empty"><div class="ph"></div><span>Waiting…</span></div>`;
-  return `<div class="slot pop ${p.connected ? '' : 'away'}" style="--pc:${color(p.look)}">${avatar(p.look, 84)}<span class="nm">${esc(p.name)}</span>${p.vip ? '<span class="crown">👑 VIP</span>' : ''}${p.connected ? '' : '<small>reconnecting…</small>'}<small class="sc">${p.score} pts</small></div>`;
+  return `<div class="slot pop ${p.connected ? '' : 'away'} ${p.bot ? 'bot' : ''}" style="--pc:${color(p.look)}">${avatar(p.look, 84)}<span class="nm">${esc(p.name)}</span>${p.vip ? '<span class="crown">👑 VIP</span>' : ''}${p.bot ? '<span class="crown">🤖 Bot</span>' : ''}${p.connected ? '' : '<small>reconnecting…</small>'}<small class="sc">${p.score} pts</small></div>`;
 }
 
 function renderLobby(): void {
@@ -374,7 +413,7 @@ function renderLobby(): void {
     const on = g.logic.id === picked.logic.id;
     return `<button class="gcard ${on ? 'on' : ''} ${g.available ? '' : 'soon'}" data-game="${g.logic.id}" style="--ac:${g.accent}">
       <span class="gi">${g.icon}</span><b>${esc(g.logic.title)}</b><small>${esc(g.logic.tagline)}</small>
-      <em>${g.available ? `${g.logic.minPlayers}–${g.logic.maxPlayers} players${g.logic.id === 'phish' ? ' · bonus' : ''}` : 'Coming soon'}</em>
+      <em>${g.available ? `${g.logic.minPlayers}–${g.logic.maxPlayers} players${g.logic.id === 'phish' ? ' · bonus' : ''}${g.logic.bot ? ' · 🤖 bots' : ''}` : 'Coming soon'}</em>
       ${room.pub.played.includes(g.logic.id) ? '<i class="played">played</i>' : ''}
     </button>`;
   }).join('');
@@ -384,7 +423,13 @@ function renderLobby(): void {
       ? ''
       : `<p class="warn">Connecting to the game server…</p>`;
   const vip = players.find((p) => p.vip);
-  const need = picked.available && players.length < picked.logic.minPlayers ? (players.length ? `${picked.logic.title} needs ${picked.logic.minPlayers}+ players` : 'Waiting for players') : '';
+  const playing = seatsFor(picked, players);
+  const nBots = players.filter((p) => p.bot).length;
+  const need = !players.some((p) => !p.bot)
+    ? 'Waiting for players'
+    : picked.available && playing.length < picked.logic.minPlayers
+      ? `${picked.logic.title} needs ${picked.logic.minPlayers}+ players${nBots && !picked.logic.bot ? ' (no bots)' : ''}`
+      : '';
   main.innerHTML = `<div class="lobby">
     <section class="join-panel">
       <div class="kicker">Join on your phone</div>
@@ -395,7 +440,8 @@ function renderLobby(): void {
       ${offline}
     </section>
     <section class="lobby-right">
-      <h2>Players <span class="muted">${players.length}/8</span>${aud.length ? ` <span class="aud">+ ${aud.length} in the audience</span>` : ''}</h2>
+      <h2>Players <span class="muted">${players.length}/8</span>${aud.length ? ` <span class="aud">+ ${aud.length} in the audience</span>` : ''}
+        <span class="bot-ctl"><button class="btn small" data-act="addBot" ${players.length >= 8 ? 'disabled' : ''}>🤖 Add bot</button>${nBots ? '<button class="btn small" data-act="removeBot">Remove bot</button>' : ''}</span></h2>
       <div class="slots">${slots}</div>
       <h2>Pick a game</h2>
       <div class="gcards">${cards}</div>
@@ -407,6 +453,8 @@ function renderLobby(): void {
   </div>`;
   main.querySelectorAll<HTMLButtonElement>('[data-game]').forEach((b) => b.addEventListener('click', () => doAction({ act: 'pick', gameId: b.dataset.game! })));
   main.querySelector('[data-act=start]')?.addEventListener('click', () => doAction({ act: 'start' }));
+  main.querySelector('[data-act=addBot]')?.addEventListener('click', () => doAction({ act: 'addBot' }));
+  main.querySelector('[data-act=removeBot]')?.addEventListener('click', () => doAction({ act: 'removeBot' }));
   footer.innerHTML = '';
 }
 
@@ -602,6 +650,7 @@ async function boot(): Promise<void> {
     const now = Date.now();
     let changed = sweep(room, now);
     if (game && room.pub.phase === 'game') {
+      if (driveBots(now)) changed = true;
       if (game.mod.logic.tick(game.state, ctx())) changed = true;
       if (game.mod.logic.isOver(game.state)) return finishGame();
     }

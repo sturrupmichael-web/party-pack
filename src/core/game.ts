@@ -60,6 +60,15 @@ export interface GameLogic<S = any> {
   publicState(s: S, ctx: GameCtx): { timer?: TimerInfo | null } & Record<string, unknown>;
   /** What only this player's phone may see (or null). */
   privateState(s: S, who: Who, ctx: GameCtx): unknown;
+  /**
+   * Computer players. Games without this leave bots out. `wants` is cheap and
+   * asked every tick; `move` is asked once the bot has "thought" for a moment
+   * and returns the same input a phone would send.
+   */
+  bot?: {
+    wants(s: S, key: string): boolean;
+    move(s: S, key: string, ctx: GameCtx): unknown;
+  };
 }
 
 /** What a view gets each time state arrives. */

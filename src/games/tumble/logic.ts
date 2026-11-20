@@ -8,7 +8,7 @@
  */
 import type { GameCtx, GameLogic, Seat, TimerInfo, Who } from '../../core/game';
 import { displayMs, inputDeadline } from '../../core/game';
-import { shuffle } from '../../core/rng';
+import { mulberry32, shuffle } from '../../core/rng';
 import { type Die, type Frame, type Throw, dieScore, simulate } from './physics';
 
 export const ROUNDS = 1;
@@ -177,4 +177,36 @@ export const tumbleLogic: GameLogic<TumbleState> = {
     if (!s.seats.some((p) => p.key === who.key)) return { audience: true };
     return null;
   },
+
+  bot: {
+    wants: (s, key) => s.phase === 'aim' && keyOf(s) === key,
+    move: (s, key, ctx) => ({ t: 'flick', n: s.nextId, ...botThrow(s, key, ctx.rand) }),
+  },
 };
+
+/**
+ * A bot tries a dozen flicks on a copy of the board and keeps the one that
+ * does best for it (its dice minus a share of everyone else's), then wobbles
+ * its hand a little so it isn't perfect.
+ */
+export function botThrow(s: TumbleState, key: string, rand: () => number): Throw {
+  const others = Math.max(1, s.seats.length - 1);
+  let best: Throw = { aim: 0, power: 0.55, lane: 0.5 };
+  let bestScore = -Infinity;
+  for (let i = 0; i < 14; i++) {
+    const t: Throw = { aim: (rand() - 0.5) * 0.8, power: 0.35 + rand() * 0.5, lane: rand() };
+    let total = 0;
+    for (let trial = 0; trial < 2; trial++) {
+      const board = s.dice.filter((d) => !d.gone).map((d) => ({ ...d }));
+      const die: Die = { id: -1, owner: key, face: 3, x: 0, y: 0, gone: false };
+      simulate(board, die, t, mulberry32(i * 31 + trial * 7 + s.nextId));
+      for (const d of [...board, die]) total += d.owner === key ? dieScore(d) : -dieScore(d) / others;
+    }
+    if (total > bestScore) {
+      bestScore = total;
+      best = t;
+    }
+  }
+  const wobble = (v: number, by: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v + (rand() - 0.5) * by));
+  return { aim: wobble(best.aim, 0.12, -1, 1), power: wobble(best.power, 0.08, 0, 1), lane: wobble(best.lane, 0.1, 0, 1) };
+}
