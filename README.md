@@ -18,8 +18,8 @@ Served at **https://michaelsturrup.com/party-pack/**:
 | 🕵️ **Mole Hunt**: everyone gets the same secret place except the mole. Ask questions out loud, accuse (it takes everyone to agree), or as the mole, name the place. | Hidden-role deduction | 3–8 | ✅ |
 | 🔊 **Echo Chamber**: everyone but the guesser writes a one-word clue for a secret word; matching clues cancel out. | Co-op word clues | 3–8 | ✅ |
 | 🎛️ **Dial In**: the reader gives a clue for a hidden spot on a spectrum; everyone drags a dial on their phone. | Spectrum guessing | 2–8 | ✅ |
-| 🎨 Swatch Watch: clue a colour on the TV grid, others tap their guess | Colour-grid clues | | Chunk 2 |
-| 🗂️ Cover Story: two teams, a word grid, code-givers see the key on their phones | Team word association | | Chunk 2 |
+| 🎨 **Swatch Watch**: the cue-giver picks one of four secret colours and clues it in one word, then two. Everyone marks the 24×12 grid on their phone (tap the grid, fine-tune in the zoom). On it 300, next to it 200, two away 100; the cue-giver gets 100 per mark within one cell. | Colour-grid clues | 3–8 | ✅ |
+| 🗂️ **Cover Story**: two teams, 25 words. Code-givers see the key on their phone and give a word + number; their team votes on phones, and most of the team agreeing reveals a word. Find all yours first; the 🔥 Burn word loses on the spot. Winners 1000, plus 50 per word your team found. | Team word association | 4–8 | ✅ |
 | 🌶️ Hot Sauce: bid on how many cups you can taste without hitting the hot one | Bluff and bid | | Chunk 3 |
 | 🍱 Snack Swap: everyone picks a card and passes the rest | Simultaneous drafting | | Chunk 3 |
 | ✏️ Doodle Relay: draw, guess, draw the guess | Draw-and-guess chain | | Chunk 4 |
@@ -95,6 +95,8 @@ Each game's prompts live in `src/games/<game>/content.json`. Edit the JSON and p
 | Mole Hunt | `src/games/mole/content.json` | `places`: `{ "name": "Ice rink", "roles": [6 roles] }`. Each game puts 20 on the board. |
 | Echo Chamber | `src/games/echo/content.json` | `words`: plain strings. Pick things people can clue in one word. |
 | Dial In | `src/games/dial/content.json` | `spectrums`: `["Mild", "Spicy"]` pairs, left end first. |
+| Cover Story | `src/games/cover/content.json` | `words`: short common words, ideally with two meanings. Each game uses 25. |
+| Swatch Watch | `src/games/swatch/grid.ts` | The grid is generated (no content file). |
 | Phish or Legit | `src/games/phish/content.json` | See below. |
 
 **Phish or Legit**: each item has
