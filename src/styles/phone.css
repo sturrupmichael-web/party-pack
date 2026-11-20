@@ -72,3 +72,31 @@ h2 { margin: .2em 0; }
 .result-face { font-size: 90px; animation: pop .5s both; }
 .good-bg { background: radial-gradient(circle at 50% 40%, rgba(61, 220, 151, .35), transparent 70%); }
 .bad-bg { background: radial-gradient(circle at 50% 40%, rgba(255, 77, 109, .3), transparent 70%); }
+
+/* shared components */
+.tform { justify-content: center; }
+.tin { width: 100%; padding: 16px 18px; border-radius: 16px; border: 3px solid var(--line); background: var(--bg2); font-size: 24px; text-align: center; outline: none; }
+.tin:focus { border-color: var(--me, var(--gold)); }
+.secret { background: var(--bg2); border: 3px solid var(--me, var(--gold)); border-radius: 20px; padding: 16px; text-align: center; }
+.secret small { display: block; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; font-size: .75em; font-weight: 700; }
+.secret b { display: block; font-size: 2em; font-weight: 900; line-height: 1.15; margin-top: 4px; overflow-wrap: anywhere; }
+.plist .sub { margin: 0; }
+.pgrid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(var(--cols), 1fr); grid-template-rows: repeat(var(--rows), minmax(0, 1fr)); gap: 8px; max-height: calc(var(--rows) * 72px); }
+.pbtn { display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; border: 3px solid var(--line); background: var(--bg2); font-weight: 700; font-size: 1em; padding: 4px 8px; min-height: 0; cursor: pointer; overflow: hidden; }
+.pbtn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbtn:active { border-color: var(--me, var(--gold)); }
+.pbtn:disabled { opacity: .35; }
+.sent-check { width: 96px; height: 96px; border-radius: 50%; background: var(--good); color: var(--bg); font-size: 60px; font-weight: 900; display: grid; place-items: center; animation: pop .45s both; }
+.dial-wrap { width: 100%; }
+.dial { width: 100%; display: block; }
+.dial-ends { display: flex; justify-content: space-between; gap: 12px; font-weight: 900; font-size: 1.05em; margin-top: 6px; }
+.dial-ends span:last-child { text-align: right; }
+.card-btn { flex: 1; min-height: 0; border: 0; border-radius: 24px; background: var(--bg2); border: 3px dashed var(--me, var(--gold)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 16px; cursor: pointer; }
+.card-btn.open { border-style: solid; }
+.card-btn .big { font-size: 1.9em; }
+
+.center-t { text-align: center; margin: 0; }
+.dial-phone { justify-content: space-between; }
+.clue-mid { font-size: 1.8em; font-weight: 900; text-align: center; overflow-wrap: anywhere; line-height: 1.1; }
+.dial-phone .hint { text-align: center; margin: 0; }
+.dial-host { width: 100%; }

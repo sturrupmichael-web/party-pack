@@ -1,0 +1,401 @@
+{
+ "_readme": "Mole Hunt places. Each needs a name and 6 roles. Add as many as you like; each game shows 20 of them.",
+ "places": [
+  {
+   "name": "Bowling alley",
+   "roles": [
+    "Shoe renter",
+    "Pro bowler",
+    "Birthday kid",
+    "Snack bar cook",
+    "Pin mechanic",
+    "League captain"
+   ]
+  },
+  {
+   "name": "Ski lodge",
+   "roles": [
+    "Ski instructor",
+    "Snowboarder",
+    "Hot cocoa seller",
+    "Lift operator",
+    "Injured skier",
+    "Avalanche patroller"
+   ]
+  },
+  {
+   "name": "Escape room",
+   "roles": [
+    "Game master",
+    "Puzzle nerd",
+    "Panicking friend",
+    "Team leader",
+    "First-timer",
+    "Hint hoarder"
+   ]
+  },
+  {
+   "name": "Dentist's office",
+   "roles": [
+    "Dentist",
+    "Hygienist",
+    "Nervous patient",
+    "Receptionist",
+    "Kid with a lollipop",
+    "Orthodontist"
+   ]
+  },
+  {
+   "name": "Zoo",
+   "roles": [
+    "Zookeeper",
+    "Tour guide",
+    "School kid",
+    "Penguin feeder",
+    "Vet",
+    "Gift shop clerk"
+   ]
+  },
+  {
+   "name": "Haunted house",
+   "roles": [
+    "Actor in a mask",
+    "Screaming teen",
+    "Ticket taker",
+    "Skeptic",
+    "Ghost hunter",
+    "Lost toddler"
+   ]
+  },
+  {
+   "name": "Farmers' market",
+   "roles": [
+    "Honey seller",
+    "Baker",
+    "Busker",
+    "Dog walker",
+    "Cheese maker",
+    "Bargain hunter"
+   ]
+  },
+  {
+   "name": "Laundromat",
+   "roles": [
+    "Owner",
+    "Student",
+    "Sock thief",
+    "Coin machine fixer",
+    "Napping customer",
+    "Dry cleaner"
+   ]
+  },
+  {
+   "name": "Karaoke bar",
+   "roles": [
+    "Bartender",
+    "Shy singer",
+    "Showoff",
+    "DJ",
+    "Bachelorette",
+    "Off-key regular"
+   ]
+  },
+  {
+   "name": "Lighthouse",
+   "roles": [
+    "Lighthouse keeper",
+    "Fisher",
+    "Photographer",
+    "Seagull watcher",
+    "Lost sailor",
+    "Painter"
+   ]
+  },
+  {
+   "name": "Food truck rally",
+   "roles": [
+    "Taco chef",
+    "Food critic",
+    "Hungry kid",
+    "Line waiter",
+    "Event organiser",
+    "Influencer"
+   ]
+  },
+  {
+   "name": "Airport security",
+   "roles": [
+    "Screener",
+    "Traveler with liquids",
+    "Sniffer dog handler",
+    "Pilot",
+    "Late passenger",
+    "Supervisor"
+   ]
+  },
+  {
+   "name": "Ice rink",
+   "roles": [
+    "Figure skater",
+    "Zamboni driver",
+    "Hockey player",
+    "Wobbly beginner",
+    "Skate sharpener",
+    "Organist"
+   ]
+  },
+  {
+   "name": "Recording studio",
+   "roles": [
+    "Producer",
+    "Drummer",
+    "Pop star",
+    "Sound engineer",
+    "Backup singer",
+    "Intern"
+   ]
+  },
+  {
+   "name": "Campsite",
+   "roles": [
+    "Scout leader",
+    "Camper",
+    "Park ranger",
+    "Marshmallow roaster",
+    "Bear watcher",
+    "Guitar player"
+   ]
+  },
+  {
+   "name": "Art museum",
+   "roles": [
+    "Curator",
+    "Security guard",
+    "Art student",
+    "Tour guide",
+    "Painter",
+    "Tourist with a selfie stick"
+   ]
+  },
+  {
+   "name": "Car wash",
+   "roles": [
+    "Washer",
+    "Driver",
+    "Manager",
+    "Vacuum attendant",
+    "Kid in the back seat",
+    "Wax specialist"
+   ]
+  },
+  {
+   "name": "Cooking show set",
+   "roles": [
+    "Host",
+    "Judge",
+    "Contestant",
+    "Camera operator",
+    "Food stylist",
+    "Audience member"
+   ]
+  },
+  {
+   "name": "Gym",
+   "roles": [
+    "Personal trainer",
+    "Bodybuilder",
+    "Yoga teacher",
+    "Receptionist",
+    "New member",
+    "Smoothie maker"
+   ]
+  },
+  {
+   "name": "Library",
+   "roles": [
+    "Librarian",
+    "Student cramming",
+    "Toddler at story time",
+    "Author",
+    "Book club member",
+    "Late returner"
+   ]
+  },
+  {
+   "name": "Water park",
+   "roles": [
+    "Lifeguard",
+    "Kid on the slide",
+    "Parent with sunscreen",
+    "Ticket seller",
+    "Wave pool fan",
+    "Snack stand clerk"
+   ]
+  },
+  {
+   "name": "Hot air balloon",
+   "roles": [
+    "Pilot",
+    "Proposing couple",
+    "Photographer",
+    "Ground crew",
+    "Nervous passenger",
+    "Weather watcher"
+   ]
+  },
+  {
+   "name": "Bakery",
+   "roles": [
+    "Head baker",
+    "Cake decorator",
+    "Early customer",
+    "Delivery driver",
+    "Apprentice",
+    "Food blogger"
+   ]
+  },
+  {
+   "name": "Courtroom",
+   "roles": [
+    "Judge",
+    "Lawyer",
+    "Witness",
+    "Juror",
+    "Court reporter",
+    "Defendant"
+   ]
+  },
+  {
+   "name": "Vet clinic",
+   "roles": [
+    "Vet",
+    "Nurse",
+    "Cat owner",
+    "Dog owner",
+    "Receptionist",
+    "Parrot"
+   ]
+  },
+  {
+   "name": "Fire station",
+   "roles": [
+    "Firefighter",
+    "Chief",
+    "Cook",
+    "Visiting class",
+    "Truck driver",
+    "Station dog"
+   ]
+  },
+  {
+   "name": "Mini golf",
+   "roles": [
+    "Course owner",
+    "Golf pro",
+    "Couple on a date",
+    "Kid",
+    "Windmill fixer",
+    "Scorekeeper"
+   ]
+  },
+  {
+   "name": "Comic convention",
+   "roles": [
+    "Cosplayer",
+    "Artist",
+    "Collector",
+    "Panel host",
+    "Security",
+    "Celebrity guest"
+   ]
+  },
+  {
+   "name": "Arcade",
+   "roles": [
+    "Prize counter clerk",
+    "High score holder",
+    "Little kid",
+    "Technician",
+    "Teenager",
+    "Parent with tokens"
+   ]
+  },
+  {
+   "name": "Theme park queue",
+   "roles": [
+    "Ride operator",
+    "Excited kid",
+    "Tired parent",
+    "Costumed character",
+    "Photographer",
+    "Line cutter"
+   ]
+  },
+  {
+   "name": "Garden center",
+   "roles": [
+    "Gardener",
+    "Cactus lover",
+    "Cashier",
+    "Delivery driver",
+    "Landscaper",
+    "Bee keeper"
+   ]
+  },
+  {
+   "name": "Radio station",
+   "roles": [
+    "Morning host",
+    "Caller",
+    "Producer",
+    "Traffic reporter",
+    "Guest singer",
+    "Intern"
+   ]
+  },
+  {
+   "name": "Wedding reception",
+   "roles": [
+    "Bride",
+    "Groom",
+    "Best friend",
+    "Caterer",
+    "DJ",
+    "Grumpy uncle"
+   ]
+  },
+  {
+   "name": "Science fair",
+   "roles": [
+    "Judge",
+    "Volcano kid",
+    "Proud parent",
+    "Teacher",
+    "Robot builder",
+    "Reporter"
+   ]
+  },
+  {
+   "name": "Movie theater",
+   "roles": [
+    "Usher",
+    "Popcorn seller",
+    "Projectionist",
+    "Film buff",
+    "Couple",
+    "Loud talker"
+   ]
+  },
+  {
+   "name": "Hair salon",
+   "roles": [
+    "Stylist",
+    "Customer",
+    "Colorist",
+    "Receptionist",
+    "Nail tech",
+    "Gossip"
+   ]
+  }
+ ]
+}

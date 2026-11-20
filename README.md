@@ -1,7 +1,8 @@
-# Server Room Party
+# Game Night Pack
 
-An IT-themed party pack for game night. A laptop on the TV hosts, and 1–8 players (plus an
-audience) join on their phones and play. Everything is original: names, art, sounds and content.
+A party pack for game night. A laptop on the TV hosts, and up to 8 players (plus an audience) join on
+their phones and play. The games borrow familiar tabletop *mechanics*, but every name, rule wording, word
+list, card and piece of art here is original.
 
 Served at **https://michaelsturrup.com/party-pack/**:
 
@@ -12,12 +13,18 @@ Served at **https://michaelsturrup.com/party-pack/**:
 
 ## Games
 
-| Game | State |
-| --- | --- |
-| 🎣 **Phish or Legit**: an email, link or text appears; tap PHISH or LEGIT. 500 for a right answer plus up to 500 for speed. The reveal highlights the red flags. | ✅ Phase 1 |
-| 🛠️ **Excuse Engine**: write funny answers to IT prompts, then vote on head-to-head pairs | Phase 2 |
-| 🔤 **Acronym Bluff**: invent meanings for real acronyms, then find the real one | Phase 2 |
-| ✏️ **Ticket Sketch**: draw a secret ticket, others write fake titles, everyone guesses | Phase 3 |
+| Game | Mechanic | Players | State |
+| --- | --- | --- | --- |
+| 🕵️ **Mole Hunt**: everyone gets the same secret place except the mole. Ask questions out loud, accuse (it takes everyone to agree), or as the mole, name the place. | Hidden-role deduction | 3–8 | ✅ |
+| 🔊 **Echo Chamber**: everyone but the guesser writes a one-word clue for a secret word; matching clues cancel out. | Co-op word clues | 3–8 | ✅ |
+| 🎛️ **Dial In**: the reader gives a clue for a hidden spot on a spectrum; everyone drags a dial on their phone. | Spectrum guessing | 2–8 | ✅ |
+| 🎨 Swatch Watch: clue a colour on the TV grid, others tap their guess | Colour-grid clues | | Chunk 2 |
+| 🗂️ Cover Story: two teams, a word grid, code-givers see the key on their phones | Team word association | | Chunk 2 |
+| 🌶️ Hot Sauce: bid on how many cups you can taste without hitting the hot one | Bluff and bid | | Chunk 3 |
+| 🍱 Snack Swap: everyone picks a card and passes the rest | Simultaneous drafting | | Chunk 3 |
+| ✏️ Doodle Relay: draw, guess, draw the guess | Draw-and-guess chain | | Chunk 4 |
+| 🎲 Tumble Steps: flick dice down a stepped board, aim and power from your phone | Dexterity / physics | | Chunk 4 |
+| 🎣 Phish or Legit (bonus): spot the scam email, link or text | Speed quiz | 1–8 | ✅ |
 
 ## How to play
 
@@ -83,7 +90,14 @@ place, so typing and animations aren't interrupted), and add it to `src/games/in
 
 Each game's prompts live in `src/games/<game>/content.json`. Edit the JSON and push; the build picks it up.
 
-**Phish or Legit** (`src/games/phish/content.json`): each item has
+| Game | File | Format |
+| --- | --- | --- |
+| Mole Hunt | `src/games/mole/content.json` | `places`: `{ "name": "Ice rink", "roles": [6 roles] }`. Each game puts 20 on the board. |
+| Echo Chamber | `src/games/echo/content.json` | `words`: plain strings. Pick things people can clue in one word. |
+| Dial In | `src/games/dial/content.json` | `spectrums`: `["Mild", "Spicy"]` pairs, left end first. |
+| Phish or Legit | `src/games/phish/content.json` | See below. |
+
+**Phish or Legit**: each item has
 
 ```json
 {

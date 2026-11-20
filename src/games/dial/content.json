@@ -1,0 +1,185 @@
+{
+"_readme": "Dial In spectrums: each is [left end, right end]. Pick ends people can argue about.",
+"spectrums": [
+[
+"Breakfast food",
+"Dinner food"
+],
+[
+"Bad movie snack",
+"Great movie snack"
+],
+[
+"Sounds made up",
+"Sounds real"
+],
+[
+"Easy to draw",
+"Hard to draw"
+],
+[
+"Kid's toy",
+"Adult hobby"
+],
+[
+"Smells bad",
+"Smells great"
+],
+[
+"Totally useless",
+"Absolutely essential"
+],
+[
+"Boring superpower",
+"Amazing superpower"
+],
+[
+"Cheap date",
+"Fancy date"
+],
+[
+"Calm animal",
+"Chaotic animal"
+],
+[
+"Bad tattoo idea",
+"Great tattoo idea"
+],
+[
+"Tiny",
+"Enormous"
+],
+[
+"Sad song",
+"Happy song"
+],
+[
+"Weird pizza topping",
+"Classic pizza topping"
+],
+[
+"Old-fashioned",
+"Futuristic"
+],
+[
+"Quiet hobby",
+"Loud hobby"
+],
+[
+"Bad first-date topic",
+"Great first-date topic"
+],
+[
+"Worst gift",
+"Best gift"
+],
+[
+"Stays in fashion",
+"Goes out of fashion"
+],
+[
+"Easy to spell",
+"Hard to spell"
+],
+[
+"Underwhelming",
+"Overwhelming"
+],
+[
+"Indoor activity",
+"Outdoor activity"
+],
+[
+"Snack",
+"Full meal"
+],
+[
+"Not scary",
+"Terrifying"
+],
+[
+"Normal pet",
+"Wild pet"
+],
+[
+"Forgettable",
+"Unforgettable"
+],
+[
+"Sweet",
+"Savoury"
+],
+[
+"Overrated vacation spot",
+"Underrated vacation spot"
+],
+[
+"Cheap",
+"Priceless"
+],
+[
+"Bad job",
+"Dream job"
+],
+[
+"Villain",
+"Hero"
+],
+[
+"Ugly word",
+"Beautiful word"
+],
+[
+"Hot day essential",
+"Cold day essential"
+],
+[
+"Comfortable shoes",
+"Fancy shoes"
+],
+[
+"Mild",
+"Spicy"
+],
+[
+"Awkward to say out loud",
+"Fine to say out loud"
+],
+[
+"Lazy Sunday",
+"Busy Monday"
+],
+[
+"Waste of money",
+"Worth every penny"
+],
+[
+"Soft",
+"Hard"
+],
+[
+"Ordinary name",
+"Unusual name"
+],
+[
+"Never say sorry for it",
+"Always say sorry for it"
+],
+[
+"Morning person thing",
+"Night owl thing"
+],
+[
+"Basic skill",
+"Expert skill"
+],
+[
+"Smells like childhood",
+"Smells like adulthood"
+],
+[
+"Weak excuse",
+"Perfect excuse"
+]
+]
+}

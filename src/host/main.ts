@@ -33,6 +33,7 @@ import { type Transport, createTransport, hasSupabase } from '../net/transport';
 import { avatar, color } from '../ui/avatars';
 import { el, esc, fitStage, store } from '../ui/dom';
 import { Sfx } from '../ui/sfx';
+import { clock } from '../ui/components';
 
 const SAVE_KEY = 'partypack.host.v1';
 const SAVE_MAX_AGE = 4 * 3600 * 1000;
@@ -69,7 +70,7 @@ app.append(stage);
 fitStage(stage);
 
 const header = el('header', 'tv-head');
-const brand = el('div', 'brand', `<span class="logo">▣</span> Server Room <b>Party</b>`);
+const brand = el('div', 'brand', `<span class="logo">◆</span> Game Night <b>Pack</b>`);
 const timerBox = el('div', 'tv-timer hidden', `<svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" cx="60" cy="60" r="52"/></svg><span class="secs"></span>`);
 const corner = el('div', 'corner');
 const tools = el('div', 'tools');
@@ -361,7 +362,7 @@ function renderCorner(): void {
 
 function playerSlot(p: Player | undefined): string {
   if (!p) return `<div class="slot empty"><div class="ph"></div><span>Waiting…</span></div>`;
-  return `<div class="slot pop ${p.connected ? '' : 'away'}" style="--pc:${color(p.look)}">${avatar(p.look, 96)}<span class="nm">${esc(p.name)}</span>${p.vip ? '<span class="crown">👑 VIP</span>' : ''}${p.connected ? '' : '<small>reconnecting…</small>'}<small class="sc">${p.score} pts</small></div>`;
+  return `<div class="slot pop ${p.connected ? '' : 'away'}" style="--pc:${color(p.look)}">${avatar(p.look, 84)}<span class="nm">${esc(p.name)}</span>${p.vip ? '<span class="crown">👑 VIP</span>' : ''}${p.connected ? '' : '<small>reconnecting…</small>'}<small class="sc">${p.score} pts</small></div>`;
 }
 
 function renderLobby(): void {
@@ -373,7 +374,7 @@ function renderLobby(): void {
     const on = g.logic.id === picked.logic.id;
     return `<button class="gcard ${on ? 'on' : ''} ${g.available ? '' : 'soon'}" data-game="${g.logic.id}" style="--ac:${g.accent}">
       <span class="gi">${g.icon}</span><b>${esc(g.logic.title)}</b><small>${esc(g.logic.tagline)}</small>
-      <em>${g.available ? `${g.logic.minPlayers === 1 ? '1' : g.logic.minPlayers}–${g.logic.maxPlayers} players` : 'Coming soon'}</em>
+      <em>${g.available ? `${g.logic.minPlayers}–${g.logic.maxPlayers} players${g.logic.id === 'phish' ? ' · bonus' : ''}` : 'Coming soon'}</em>
       ${room.pub.played.includes(g.logic.id) ? '<i class="played">played</i>' : ''}
     </button>`;
   }).join('');
@@ -415,7 +416,7 @@ function renderResults(): void {
   const top = Math.max(1, ...rows.map((x) => x.p.score));
   main.innerHTML = `<div class="results">
     <div class="kicker">${r ? esc(r.title) : 'Scores'}: results</div>
-    <h1 class="title-l">${rows[0] ? `${esc(rows[0].p.name)} leads!` : 'Scores'}</h1>
+    <h1 class="title-l">${rows[0] && rows[0].p.score > 0 ? (rows[1] && rows[1].p.score === rows[0].p.score ? "It's a tie at the top!" : `${esc(rows[0].p.name)} leads!`) : 'Scores'}</h1>
     <ol class="board">${rows
       .map(({ p, place }, i) => {
         const got = Math.round(r?.points[p.key] ?? 0);
@@ -448,7 +449,8 @@ function frame(): void {
     const len = 2 * Math.PI * 52;
     arc.style.strokeDasharray = `${len}`;
     arc.style.strokeDashoffset = `${len * (1 - left / timerInfo.total)}`;
-    timerBox.querySelector('.secs')!.textContent = String(sec);
+    timerBox.querySelector('.secs')!.textContent = clock(left);
+    timerBox.classList.toggle('long', left >= 99_500);
     timerBox.classList.toggle('urgent', sec <= 5);
     if (sec !== lastSec) {
       if (sec <= 5 && sec > 0) sfx.tick();

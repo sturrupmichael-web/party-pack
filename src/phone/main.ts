@@ -17,6 +17,7 @@ import { trackPresence } from '../net/presence';
 import { type Transport, createTransport, hasSupabase } from '../net/transport';
 import { avatar, color } from '../ui/avatars';
 import { lookAtTv } from '../ui/common';
+import { clock } from '../ui/components';
 import { el, esc, store } from '../ui/dom';
 
 const SESSION_KEY = 'partypack.session';
@@ -67,7 +68,7 @@ function clearSession(): void {
 function showJoin(err = '', room = ''): void {
   app.innerHTML = '';
   const form = el('form', 'screen join');
-  form.innerHTML = `<div class="logo-big">▣</div><h1>Server Room <b>Party</b></h1><p class="muted">Join the game on the TV</p>`;
+  form.innerHTML = `<div class="logo-big">◆</div><h1>Game Night <b>Pack</b></h1><p class="muted">Join the game on the TV</p>`;
   const code = el('input') as HTMLInputElement;
   code.placeholder = 'ROOM CODE';
   code.className = 'code-in';
@@ -213,7 +214,7 @@ function play(room: string, myName: string): void {
       const g = st.game as any;
       if (!mod?.views || !g) return mountScreen('wait', lookAtTv());
       timer(g.timer ?? null);
-      const c: PhoneViewCtx = { pub: g, priv: st.priv[me.key] ?? null, me, send: (data) => say('input', { inst: r.inst!, data }), draft };
+      const c: PhoneViewCtx = { pub: g, priv: st.priv[me.key] ?? null, me, players: r.players, send: (data) => say('input', { inst: r.inst!, data }), draft };
       const key = `game:${r.inst}:${mod.views.phone.key(c)}`;
       if (current?.key !== key) {
         body.innerHTML = '';
@@ -263,7 +264,7 @@ function play(room: string, myName: string): void {
       `vip:${r.picked}:${seatedN}`,
       `<div class="screen vip-menu">
         <p class="kicker">👑 You're the VIP: pick a game</p>
-        <div class="glist">${GAMES.map(
+        <div class="glist">${GAMES.filter((g) => g.available).map(
           (g) => `<button class="gbtn ${g.logic.id === r.picked ? 'on' : ''}" data-g="${g.logic.id}" ${g.available ? '' : 'disabled'} style="--ac:${g.accent}"><span>${g.icon}</span><b>${esc(g.logic.title)}</b><small>${g.available ? esc(g.logic.tagline) : 'Coming soon'}</small></button>`,
         ).join('')}</div>
         <button class="btn primary huge" data-start ${need || !picked.available ? 'disabled' : ''}>${need || `Start ${esc(picked.logic.title)}`}</button>
@@ -297,7 +298,7 @@ function play(room: string, myName: string): void {
     if (tInfo) {
       const left = Math.max(0, tInfo.endsAt + skew - Date.now());
       (bar.firstElementChild as HTMLElement).style.width = `${(100 * left) / tInfo.total}%`;
-      bar.lastElementChild!.textContent = String(Math.ceil(left / 1000));
+      bar.lastElementChild!.textContent = clock(left);
       bar.classList.toggle('urgent', left < 5000);
     }
     raf = requestAnimationFrame(frame);

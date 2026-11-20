@@ -73,6 +73,8 @@ export interface PhoneViewCtx {
   pub: any;
   priv: any;
   me: import('./room').Player;
+  /** Everyone in the room (for names and avatars). */
+  players: import('./room').Player[];
   /** Send a game input to the host. */
   send(data: unknown): void;
   /** Phone-local storage for drafts that should survive a refresh. */

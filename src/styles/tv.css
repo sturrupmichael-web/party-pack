@@ -55,22 +55,22 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .join-panel .qr { width: 340px; height: 340px; border-radius: 22px; background: #fff; }
 .lobby-right h2 { margin: 0 0 14px; font-size: 38px; }
 .lobby-right h2 .aud { font-size: 28px; color: var(--blue); font-weight: 500; }
-.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
-.slot { height: 168px; border-radius: 24px; background: var(--bg2); border: 3px solid var(--pc, var(--line)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; }
-.slot .nm { font-weight: 900; font-size: 32px; max-width: 95%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.slot .crown { position: absolute; top: 10px; left: 12px; font-size: 20px; font-weight: 700; color: var(--gold); }
-.slot .sc { position: absolute; top: 12px; right: 14px; font-size: 18px; color: var(--muted); }
+.slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 26px; }
+.slot { height: 178px; border-radius: 24px; background: var(--bg2); border: 3px solid var(--pc, var(--line)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; position: relative; }
+.slot .nm { font-weight: 900; font-size: 24px; max-width: 95%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slot .crown { position: absolute; top: 6px; left: 8px; font-size: 16px; font-weight: 700; color: var(--gold); }
+.slot .sc { position: absolute; bottom: 6px; right: 0; left: 0; text-align: center; font-size: 16px; color: var(--muted); }
 .slot small { color: var(--muted); font-size: 18px; }
 .slot.away { opacity: .5; }
 .slot.empty { border-style: dashed; color: var(--muted); font-size: 22px; }
-.slot.empty .ph { width: 100px; height: 100px; border-radius: 50%; border: 3px dashed var(--line); }
-.gcards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.gcard { text-align: left; border: 3px solid var(--line); background: var(--bg2); border-radius: 24px; padding: 20px 22px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; position: relative; min-height: 196px; transition: transform .15s, border-color .15s; }
-.gcard .gi { font-size: 40px; }
-.gcard b { font-size: 32px; }
-.gcard small { color: var(--muted); font-size: 21px; line-height: 1.25; }
-.gcard em { margin-top: auto; font-style: normal; font-size: 18px; color: var(--ac); font-weight: 700; }
-.gcard.on { border-color: var(--ac); transform: translateY(-8px); box-shadow: 0 10px 0 color-mix(in srgb, var(--ac) 45%, transparent); }
+.slot.empty .ph { width: 72px; height: 72px; border-radius: 50%; border: 3px dashed var(--line); }
+.gcards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.gcard { text-align: left; border: 3px solid var(--line); background: var(--bg2); border-radius: 22px; padding: 14px 18px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; gap: 6px; position: relative; min-height: 0; height: 196px; transition: transform .15s, border-color .15s; }
+.gcard .gi { font-size: 34px; }
+.gcard b { font-size: 27px; line-height: 1.1; }
+.gcard small { color: var(--muted); font-size: 18px; line-height: 1.25; }
+.gcard em { margin-top: auto; font-style: normal; font-size: 16px; color: var(--ac); font-weight: 700; }
+.gcard.on { border-color: var(--ac); transform: translateY(-6px); box-shadow: 0 10px 0 color-mix(in srgb, var(--ac) 45%, transparent); }
 .gcard.soon { opacity: .55; }
 .gcard .played { position: absolute; top: 14px; right: 16px; font-style: normal; font-size: 16px; background: var(--line); padding: 2px 10px; border-radius: 99px; }
 .lobby-go { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 26px; font-size: 24px; }
@@ -148,3 +148,40 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 
 .reveal-right { padding-top: 40px; }
 .join-panel .warn { font-size: 22px; }
+.tv-timer.long .secs { font-size: 36px; }
+
+/* shared game bits */
+.pchip { display: inline-flex; align-items: center; gap: 12px; vertical-align: middle; }
+.pchip b { color: var(--pc); }
+.lead { font-size: 40px; }
+.picks.center { justify-content: center; }
+.outcome { font-size: 44px; font-weight: 700; margin: 10px 0 26px; }
+.lock-row.left { justify-content: flex-start; margin-top: 40px; }
+
+/* Mole Hunt */
+.mole-ask { display: grid; grid-template-columns: 640px 1fr; gap: 56px; height: 100%; }
+.mole-left .tips { font-size: 28px; color: var(--muted); line-height: 1.5; padding-left: 1.1em; }
+.places { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; }
+.places span { background: var(--bg2); border: 3px solid var(--line); border-radius: 16px; padding: 16px 12px; text-align: center; font-weight: 700; font-size: 25px; }
+.places .hit { border-color: var(--good); color: var(--good); }
+.places .miss { border-color: var(--bad); color: var(--bad); text-decoration: line-through; }
+.mole-reveal { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.mole-who { display: flex; align-items: center; gap: 24px; text-align: left; }
+.mole-who small { display: block; font-size: 28px; color: var(--muted); }
+.mole-who b { font-size: 64px; font-weight: 900; }
+
+/* Echo Chamber */
+.clue-cards { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 26px 0; max-width: 1600px; }
+.clue-card { min-width: 260px; padding: 22px 30px; border-radius: 22px; background: #fff; color: var(--bg); border-bottom: 10px solid var(--pc); text-align: center; animation: pop .45s both; }
+.clue-card b { display: block; font-size: 52px; font-weight: 900; }
+.clue-card small { font-size: 20px; color: #6b6590; }
+.clue-card.dead { background: var(--bg2); color: var(--muted); border-bottom-color: var(--line); }
+.clue-card.dead b { text-decoration: line-through; }
+
+/* Dial In */
+.dial-screen { display: grid; grid-template-columns: 700px 1fr; gap: 50px; height: 100%; align-items: center; }
+.tv-dial { width: 100%; }
+.tv-dial .dial { width: 100%; display: block; }
+.tv-dial .ends { display: flex; justify-content: space-between; font-size: 40px; font-weight: 900; margin-top: 12px; }
+.clue-big { font-size: 84px; font-weight: 900; margin: 10px 0 20px; line-height: 1.05; overflow-wrap: anywhere; }
+.small-rules { font-size: 32px; }
