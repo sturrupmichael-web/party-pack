@@ -3,7 +3,7 @@ import type { GameCtx, GameLogic } from '../src/core/game';
 import { mulberry32 } from '../src/core/rng';
 import { MATCH_POINTS, RELAY_POINTS, bookFor, doodleLogic as D, samePhrase } from '../src/games/doodle/logic';
 import { decodeStroke, encodeStroke, sanitize, toSvg } from '../src/games/doodle/ink';
-import { ROUNDS, tumbleLogic as T } from '../src/games/tumble/logic';
+import { DICE_EACH, ROUNDS, diceLeft, tumbleLogic as T } from '../src/games/tumble/logic';
 import { EDGES, simulate, stepAt, type Die } from '../src/games/tumble/physics';
 
 function harness<T>(L: GameLogic<T>, n = 4, active?: string[]) {
@@ -120,19 +120,28 @@ describe('Tumble Steps physics', () => {
 });
 
 describe('Tumble Steps', () => {
-  it('two flicks each, three rounds, auto-flicks on timeout', () => {
+  it('one die per turn around the table, 4 dice each, auto-flicks on timeout', () => {
     const h = harness(T, 3);
-    const first = h.s.seats[0].key;
-    expect(h.input(h.s.seats[1].key, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(false);
-    expect(h.input(first, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(true);
+    const [a, b, c] = (h.s.seats as Array<{ key: string }>).map((p) => p.key);
+    expect(h.input(b, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(false);
+    expect(h.input(a, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(true);
     expect(h.s.phase).toBe('roll');
-    expect(h.input(first, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(false);
+    expect(h.input(a, { t: 'flick', n: h.s.nextId, aim: 0, power: 0.5, lane: 0.5 })).toBe(false);
     h.wait(10_000);
     expect(h.s.phase).toBe('aim');
-    expect(h.s.seats[h.s.turn].key).toBe(first);
+    expect(h.s.seats[h.s.turn].key).toBe(b);
+    expect(diceLeft(h.s)).toEqual({ [a]: DICE_EACH - 1, [b]: DICE_EACH, [c]: DICE_EACH });
+    const order: string[] = [a];
     let guard = 0;
-    while (h.s.phase !== 'done' && guard++ < 300) h.wait(25_000);
+    while (h.s.phase !== 'done' && guard++ < 600) {
+      if (h.s.phase === 'aim' && order.length < h.s.thrown + 1) order.push(h.s.seats[h.s.turn].key);
+      h.wait(h.s.phase === 'aim' ? 25_000 : 10_000);
+    }
     expect(h.s.phase).toBe('done');
+    expect(DICE_EACH).toBe(4);
+    expect(h.s.thrown).toBe(3 * DICE_EACH);
+    expect(order).toEqual(Array.from({ length: 3 * DICE_EACH }, (_, i) => [a, b, c][i % 3]));
+    expect(Object.values(diceLeft(h.s))).toEqual([0, 0, 0]);
     expect(h.s.roundScores).toHaveLength(ROUNDS);
   });
 });

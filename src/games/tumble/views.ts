@@ -3,7 +3,7 @@ import type { Player } from '../../core/room';
 import { avatar, color } from '../../ui/avatars';
 import { lookAtTv } from '../../ui/common';
 import { esc } from '../../ui/dom';
-import { POINT_RATE, ROUNDS } from './logic';
+import { DICE_EACH, POINT_RATE, ROUNDS } from './logic';
 import { BH, BW, CY, EDGES, HALF_FAR, HALF_NEAR, LAUNCH_X, MULT, POSTS, R, type Die, type Frame, halfWidth, stepAt } from './physics';
 
 const who = (P: Player[], k: string | null | undefined) => P.find((p) => p.key === k);
@@ -93,12 +93,14 @@ let animId = 0;
 let raf = 0;
 let lastSig = '';
 
+const dots = (n: number) => (n > 0 ? `${n} ${n === 1 ? 'die' : 'dice'} left` : 'all thrown');
+
 function strip(P: Player[], p: any): string {
   return (p.order as string[])
     .map((k) => {
       const pl = who(P, k);
       if (!pl) return '';
-      return `<span class="td-chip ${p.turn === k && p.phase !== 'score' ? 'turn' : ''}" style="--pc:${color(pl.look)}">${avatar(pl.look, 40)}<b>${esc(pl.name)}</b><em>${p.board[k] ?? 0}</em><small>${p.totals[k] ? `${p.totals[k]} banked` : 'on board'}</small></span>`;
+      return `<span class="td-chip ${p.turn === k && p.phase !== 'score' ? 'turn' : ''}" style="--pc:${color(pl.look)}">${avatar(pl.look, 40)}<b>${esc(pl.name)}</b><em>${p.board[k] ?? 0}</em><small>${dots(p.left?.[k] ?? 0)}</small></span>`;
     })
     .join('');
 }
@@ -117,15 +119,15 @@ export const tumbleViews: GameViews = {
         const rows = (p.order as string[]).map((k) => ({ k, t: p.totals[k] as number })).sort((a, b) => b.t - a.t);
         el.innerHTML = `<div class="td-screen">
           <h1 class="title-m">${p.round >= ROUNDS ? `Final board scores <small class="ss-rate">×${POINT_RATE} to the scoreboard</small>` : `Round ${p.round} of ${ROUNDS} scores`}</h1>
-          <table class="ss-scores"><tr><th></th>${rs.map((_, i) => `<th>R${i + 1}</th>`).join('')}<th>Total</th></tr>
-          ${rows.map(({ k, t }) => { const pl = who(c.players, k); return `<tr><td class="l"><span class="nm">${pl ? avatar(pl.look, 44) : ''}<b>${esc(pl?.name ?? '?')}</b></span></td>${rs.map((r) => `<td>${r[k] ?? 0}</td>`).join('')}<td class="big">${t}</td></tr>`; }).join('')}
+          <table class="ss-scores"><tr><th></th>${rs.length > 1 ? rs.map((_, i) => `<th>R${i + 1}</th>`).join('') : ''}<th>Total</th></tr>
+          ${rows.map(({ k, t }) => { const pl = who(c.players, k); return `<tr><td class="l"><span class="nm">${pl ? avatar(pl.look, 44) : ''}<b>${esc(pl?.name ?? '?')}</b></span></td>${rs.length > 1 ? rs.map((r) => `<td>${r[k] ?? 0}</td>`).join('') : ''}<td class="big">${t}</td></tr>`; }).join('')}
           </table></div>`;
         return;
       }
       if (p.round === 1) c.sfx.whoosh();
       el.innerHTML = `<div class="td-screen">
         <div class="td-top"><div class="td-banner"></div><div class="td-strip"></div></div>
-        <div class="td-wrap">${boardSvg()}<div class="td-rules"><b>How to play</b>On your turn, flick 2 dice from your phone: drag back, aim, let go. A die re-rolls every time it tumbles down a step. When the round ends, each die scores its face × its step. Off the end, or stuck on the launch pad, scores nothing. Knock other dice off!</div></div></div>`;
+        <div class="td-wrap">${boardSvg()}<div class="td-rules"><b>How to play</b>Everyone has ${DICE_EACH} dice. Take turns flicking one at a time from your phone: drag back, aim, let go. A die re-rolls every time it tumbles down a step. When everyone is out of dice, each die scores its face × its step. Off the end, or stuck on the launch pad, scores nothing. Knock other dice off!</div></div></div>`;
       tumbleViews.host.update!(el, c);
     },
     update(el, c) {
@@ -138,7 +140,7 @@ export const tumbleViews: GameViews = {
       };
       const turnName = esc(who(c.players, p.turn)?.name ?? '');
       el.querySelector('.td-banner')!.innerHTML =
-        p.phase === 'roll' ? `<small>Round ${p.round} of ${ROUNDS}</small><b>${turnName}</b> flicks!` : `<small>Round ${p.round} of ${ROUNDS} · die ${p.throwNo} of 2</small><b>${turnName}</b>, flick from your phone`;
+        p.phase === 'roll' ? `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b> flicks!` : `<small>Die ${p.throwNo} of ${DICE_EACH}</small><b>${turnName}</b>, flick from your phone`;
       el.querySelector('.td-rules')?.classList.toggle('hide', !(p.round === 1 && !p.dice.length && !p.anim));
       el.querySelector('.td-strip')!.innerHTML = strip(c.players, p);
       if (p.anim && p.anim.id !== animId) {
@@ -222,7 +224,7 @@ const laneX = (lane: number) => (CY + (lane - 0.5) * 2 * (halfWidth(LAUNCH_X) - 
 function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
   const p = c.pub;
   el.innerHTML = `<div class="screen td-pad">
-    <p class="prompt">Die ${p.throwNo} of 2 · drag back and let go</p>
+    <p class="prompt">Die ${p.throwNo} of ${DICE_EACH} · drag back and let go</p>
     <div class="td-area"><svg viewBox="0 0 100 160" preserveAspectRatio="none" class="td-mini">
       <rect x="0" y="0" width="100" height="160" fill="#0b0820"/>
       <rect x="0" y="0" width="100" height="${(1 - EDGES[4] / BW) * 160}" fill="rgba(255,77,109,.18)"/>

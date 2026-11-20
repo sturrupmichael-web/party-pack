@@ -1,18 +1,18 @@
 /**
- * Tumble Steps: dice-flicking. On your turn you flick two dice down the
- * stepped board from your phone (drag back, aim, let go). Every time a die
- * tumbles down a step it re-rolls. At the end of a round each die still on
- * the board scores its face × the step's multiplier. Too hard and it falls
- * off the end; too soft and it never leaves the launch pad. Dice knock each
- * other around. Three rounds.
+ * Tumble Steps: dice-flicking. Everyone has 4 dice. Turns go around the
+ * table one die at a time (drag back on your phone, aim, let go) until
+ * everyone is out of dice. Every time a die tumbles down a step it re-rolls.
+ * Then each die still on the board scores its face × the step's multiplier.
+ * Too hard and it falls off the end; too soft and it never leaves the launch
+ * pad. Dice knock each other around.
  */
 import type { GameCtx, GameLogic, Seat, TimerInfo, Who } from '../../core/game';
 import { displayMs, inputDeadline } from '../../core/game';
 import { shuffle } from '../../core/rng';
 import { type Die, type Frame, type Throw, dieScore, simulate } from './physics';
 
-export const ROUNDS = 3;
-export const DICE_EACH = 2;
+export const ROUNDS = 1;
+export const DICE_EACH = 4;
 /** Board points become pack points at this rate. */
 export const POINT_RATE = 25;
 const FRAME_MS = 1000 / 30;
@@ -22,7 +22,7 @@ export interface TumbleState {
   round: number;
   /** Index into seats. */
   turn: number;
-  /** Throws made by the current player this round. */
+  /** Throws made by everyone this round; turns go around one die at a time. */
   thrown: number;
   dice: Die[];
   nextId: number;
@@ -46,6 +46,12 @@ export function boardScores(s: TumbleState): Record<string, number> {
   return out;
 }
 
+/** Dice each player still has to flick this round. */
+export function diceLeft(s: TumbleState): Record<string, number> {
+  const n = s.seats.length;
+  return Object.fromEntries(s.seats.map((p, i) => [p.key, DICE_EACH - Math.floor(s.thrown / n) - (i < s.thrown % n ? 1 : 0)]));
+}
+
 export function totals(s: TumbleState): Record<string, number> {
   return Object.fromEntries(s.seats.map((p) => [p.key, s.roundScores.reduce((a, r) => a + (r[p.key] ?? 0), 0)]));
 }
@@ -65,10 +71,8 @@ function doThrow(s: TumbleState, t: Throw, ctx: GameCtx): void {
 
 function afterRoll(s: TumbleState, ctx: GameCtx): void {
   s.anim = null;
-  if (s.thrown < DICE_EACH) return aim(s, ctx);
-  s.thrown = 0;
-  if (s.turn < s.seats.length - 1) {
-    s.turn++;
+  if (s.thrown < s.seats.length * DICE_EACH) {
+    s.turn = s.thrown % s.seats.length;
     return aim(s, ctx);
   }
   s.roundScores.push(boardScores(s));
@@ -130,6 +134,7 @@ export const tumbleLogic: GameLogic<TumbleState> = {
       else {
         s.round++;
         s.turn = 0;
+        s.thrown = 0;
         s.dice = [];
         // Rotate who goes first; going last is an advantage.
         s.seats.push(s.seats.shift()!);
@@ -154,7 +159,9 @@ export const tumbleLogic: GameLogic<TumbleState> = {
       phase: s.phase,
       round: s.round,
       turn: keyOf(s),
-      throwNo: s.thrown + 1,
+      // While a die rolls, thrown already counts it.
+      throwNo: Math.floor((s.thrown - (s.phase === 'roll' ? 1 : 0)) / s.seats.length) + 1,
+      left: diceLeft(s),
       next: s.nextId,
       order: s.seats.map((p) => p.key),
       dice: s.dice,
