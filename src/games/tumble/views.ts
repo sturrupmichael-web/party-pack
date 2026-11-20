@@ -4,10 +4,22 @@ import { avatar, color } from '../../ui/avatars';
 import { lookAtTv } from '../../ui/common';
 import { esc } from '../../ui/dom';
 import { POINT_RATE, ROUNDS } from './logic';
-import { BH, BW, EDGES, MULT, R, type Die, type Frame } from './physics';
+import { BH, BW, CY, EDGES, HALF_FAR, HALF_NEAR, LAUNCH_X, MULT, POSTS, R, type Die, type Frame, halfWidth, stepAt } from './physics';
 
 const who = (P: Player[], k: string | null | undefined) => P.find((p) => p.key === k);
-const STEP_FILL = ['#2b2163', '#33287a', '#3d2f93', '#4a37ad'];
+/** Step colours (surface, side face), launch pad first. */
+const STEP_FILL: Array<[string, string]> = [
+  ['#2a2350', '#141030'],
+  ['#21b8a8', '#0f6e65'],
+  ['#3b82f6', '#1d4c9c'],
+  ['#8b5cf6', '#55309f'],
+  ['#ec4899', '#9a2463'],
+];
+/** How far each step sits "below" the one before it, in board units. */
+const DROP = 18;
+const THICK = 40;
+/** Visual offset for a point's step: lower steps are drawn further down. */
+export const lift = (x: number) => (stepAt(x) + 1) * DROP;
 
 const PIPS: Record<number, Array<[number, number]>> = {
   1: [[0, 0]],
@@ -21,22 +33,59 @@ export function pips(face: number, s = R): string {
   return (PIPS[face] ?? []).map(([x, y]) => `<circle cx="${x * s * 0.5}" cy="${y * s * 0.5}" r="${s * 0.16}" fill="#120c2c"/>`).join('');
 }
 function dieSvg(d: { id: number; face: number; x: number; y: number }, col: string, fresh = false): string {
-  return `<g class="td-die ${fresh ? 'fresh' : ''}" data-id="${d.id}" transform="translate(${d.x} ${d.y})"><rect x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" rx="12" fill="${col}" stroke="#120c2c" stroke-width="4"/><g class="pp">${pips(d.face)}</g></g>`;
+  return `<g class="td-die ${fresh ? 'fresh' : ''}" data-id="${d.id}" transform="translate(${d.x} ${d.y + lift(d.x)})">
+    <ellipse class="sh" cx="6" cy="${R * 0.9}" rx="${R * 1.1}" ry="${R * 0.45}" fill="rgba(0,0,0,.4)"/>
+    <g class="bob"><g class="spin"><rect x="${-R}" y="${-R}" width="${2 * R}" height="${2 * R}" rx="13" fill="${col}" stroke="#120c2c" stroke-width="4"/>
+    <rect x="${-R + 6}" y="${-R + 5}" width="${2 * R - 12}" height="${R * 0.55}" rx="8" fill="rgba(255,255,255,.28)"/><g class="pp">${pips(d.face)}</g></g></g></g>`;
+}
+
+/** One slice of the board between x0 and x1: top surface and the side face below it. */
+function slab(x0: number, x1: number, o: number, fill: [string, string], id: string): string {
+  const t0 = CY - halfWidth(x0) + o;
+  const t1 = CY - halfWidth(x1) + o;
+  const b0 = CY + halfWidth(x0) + o;
+  const b1 = CY + halfWidth(x1) + o;
+  return `<polygon points="${x0},${b0} ${x1},${b1} ${x1},${b1 + THICK} ${x0},${b0 + THICK}" fill="${fill[1]}"/>
+    <polygon points="${x1},${t1} ${x1},${b1} ${x1},${b1 + THICK} ${x1},${t1}" fill="${fill[1]}"/>
+    <polygon points="${x0},${t0} ${x1},${t1} ${x1},${b1} ${x0},${b0}" fill="url(#${id})" stroke="rgba(255,255,255,.18)" stroke-width="3"/>`;
 }
 
 function boardSvg(): string {
-  const steps = MULT.map(
-    (m, i) => `<rect x="${EDGES[i]}" y="0" width="${EDGES[i + 1] - EDGES[i]}" height="${BH}" fill="${STEP_FILL[i]}"/>
-      <line x1="${EDGES[i]}" y1="0" x2="${EDGES[i]}" y2="${BH}" stroke="#120c2c" stroke-width="10"/>
-      <text x="${(EDGES[i] + EDGES[i + 1]) / 2}" y="${BH / 2 + 50}" text-anchor="middle" font-size="150" font-weight="900" fill="rgba(255,255,255,.08)">×${m}</text>`,
-  );
-  const chevrons = [0, 1, 2, 3, 4].map((i) => `<text x="${EDGES[4] + 90}" y="${80 + i * 130}" text-anchor="middle" font-size="60" fill="rgba(255,77,109,.5)">»</text>`).join('');
-  return `<svg class="td-board" viewBox="0 0 ${BW} ${BH}">
-    <rect x="0" y="0" width="${EDGES[0]}" height="${BH}" fill="#1a1440"/>
-    <text x="${EDGES[0] / 2}" y="${BH / 2}" text-anchor="middle" font-size="34" font-weight="800" fill="rgba(255,255,255,.25)" transform="rotate(-90 ${EDGES[0] / 2} ${BH / 2})">LAUNCH PAD</text>
-    ${steps.join('')}
-    <rect x="${EDGES[4]}" y="0" width="${BW - EDGES[4]}" height="${BH}" fill="#0b0820"/>${chevrons}
-    <text x="${EDGES[4] + 90}" y="${BH - 20}" text-anchor="middle" font-size="26" font-weight="800" fill="rgba(255,77,109,.7)">DROP</text>
+  const xs = [0, ...EDGES];
+  // Draw the lowest (furthest) step first so higher steps sit on top of it.
+  const parts: string[] = [];
+  const grads: string[] = [];
+  for (let k = 4; k >= 0; k--) {
+    const id = `tdg${k}`;
+    const [top] = STEP_FILL[k];
+    grads.push(`<linearGradient id="${id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${top}" stop-opacity=".78"/><stop offset=".15" stop-color="${top}"/><stop offset="1" stop-color="${top}"/></linearGradient>`);
+    parts.push(slab(xs[k], xs[k + 1], k * DROP, STEP_FILL[k], id));
+  }
+  const labels = MULT.map((m, i) => {
+    const x = (EDGES[i] + EDGES[i + 1]) / 2;
+    return `<text x="${x}" y="${CY + 52 + (i + 1) * DROP}" text-anchor="middle" font-size="${120 + i * 14}" font-weight="900" fill="rgba(255,255,255,.2)">×${m}</text>`;
+  }).join('');
+  const posts = POSTS.map(([x, y, r]) => {
+    const o = lift(x);
+    return `<ellipse cx="${x + 6}" cy="${y + o + r}" rx="${r * 1.3}" ry="${r * 0.6}" fill="rgba(0,0,0,.45)"/>
+      <rect x="${x - r}" y="${y + o - r * 2.2}" width="${r * 2}" height="${r * 2.2}" fill="#e8e3f7"/>
+      <ellipse cx="${x}" cy="${y + o}" rx="${r}" ry="${r * 0.55}" fill="#bdb4dd"/>
+      <ellipse class="post-top" cx="${x}" cy="${y + o - r * 2.2}" rx="${r}" ry="${r * 0.55}" fill="#fff"/>`;
+  }).join('');
+  const lx = EDGES[4] + 70;
+  const chevrons = [-2, -1, 0, 1, 2].map((i) => `<text class="chev" x="${lx}" y="${CY + i * 120 + 20 + 4 * DROP}" text-anchor="middle" font-size="64" fill="#ff4d6d" style="animation-delay:${Math.abs(i) * 0.15}s">»</text>`).join('');
+  return `<svg class="td-board" viewBox="-30 -24 ${BW + 60} ${BH + 4 * DROP + THICK + 70}">
+    <defs>${grads.join('')}
+      <radialGradient id="tdvoid" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#ff4d6d" stop-opacity=".35"/><stop offset=".7" stop-color="#ff4d6d" stop-opacity="0"/></radialGradient>
+      <filter id="tdblur"><feGaussianBlur stdDeviation="18"/></filter>
+      <pattern id="tdstripe" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="24" fill="rgba(255,209,102,.16)"/></pattern></defs>
+    <polygon points="20,${CY - HALF_NEAR + 90} ${EDGES[4]},${CY - HALF_FAR + 120} ${EDGES[4]},${CY + HALF_FAR + 160} 20,${CY + HALF_NEAR + 140}" fill="rgba(0,0,0,.55)" filter="url(#tdblur)"/>
+    <rect x="${EDGES[4]}" y="-40" width="${BW - EDGES[4] + 40}" height="${BH + 200}" fill="url(#tdvoid)"/>
+    ${chevrons}<text x="${lx}" y="${BH + 4 * DROP + 70}" text-anchor="middle" font-size="30" font-weight="900" fill="#ff4d6d" letter-spacing="4">DROP</text>
+    ${parts.join('')}
+    <polygon points="0,${CY - HALF_NEAR} ${EDGES[0]},${CY - halfWidth(EDGES[0])} ${EDGES[0]},${CY + halfWidth(EDGES[0])} 0,${CY + HALF_NEAR}" fill="url(#tdstripe)"/>
+    <text x="${EDGES[0] / 2}" y="${CY}" text-anchor="middle" dominant-baseline="middle" font-size="30" font-weight="900" letter-spacing="3" fill="rgba(255,209,102,.6)" transform="rotate(-90 ${EDGES[0] / 2} ${CY})">LAUNCH</text>
+    ${labels}${posts}
     <g class="dice"></g></svg>`;
 }
 
@@ -103,21 +152,49 @@ export const tumbleViews: GameViews = {
         g.innerHTML = ids.map((id, i) => dieSvg({ id, face: frames[0][i][2], x: frames[0][i][0], y: frames[0][i][1] }, colOf(owners[id] ?? ''), id === p.anim.id)).join('');
         const nodes = ids.map((id) => g.querySelector<SVGGElement>(`[data-id="${id}"]`)!);
         const faces = frames[0].map((f) => f[2]);
+        const steps = frames[0].map((f) => stepAt(f[0]));
+        const spin = frames[0].map(() => 0);
+        const last = frames[0].map((f) => [f[0], f[1]]);
+        const fell = frames[0].map(() => false);
         const t0 = performance.now();
+        const FR = 1000 / 30;
         const step = () => {
-          const fi = Math.min(frames.length - 1, Math.floor((performance.now() - t0) / (1000 / 30)));
-          frames[fi].forEach(([x, y, face, gone], i) => {
+          const t = (performance.now() - t0) / FR;
+          const fi = Math.min(frames.length - 1, Math.floor(t));
+          const nx = Math.min(frames.length - 1, fi + 1);
+          const k = Math.min(1, t - fi);
+          frames[fi].forEach(([x0, y0, face, gone], i) => {
             const n = nodes[i];
             if (!n) return;
-            n.setAttribute('transform', `translate(${x} ${y})`);
-            n.style.opacity = gone ? '0' : '1';
+            const [x1, y1] = frames[nx][i];
+            const x = x0 + (x1 - x0) * k;
+            const y = y0 + (y1 - y0) * k;
+            // Spin with the distance travelled, so a sliding die looks like it's tumbling.
+            spin[i] += Math.hypot(x - last[i][0], y - last[i][1]) * 0.9 * (i % 2 ? 1 : -1);
+            last[i] = [x, y];
+            n.setAttribute('transform', `translate(${x} ${y + lift(x)})`);
+            n.querySelector('.spin')!.setAttribute('transform', `rotate(${spin[i] % 360})`);
+            const st = stepAt(x);
+            if (st !== steps[i] && st > steps[i] && st < 4) {
+              const b = n.querySelector('.bob')!;
+              b.classList.remove('drop');
+              void (b as SVGGElement).getBoundingClientRect();
+              b.classList.add('drop');
+            }
+            steps[i] = st;
+            if (gone && !fell[i]) {
+              fell[i] = true;
+              n.classList.add(x >= EDGES[4] ? 'fall' : 'fade');
+              if (x >= EDGES[4]) c.sfx.bad();
+            }
             if (face !== faces[i]) {
               faces[i] = face;
               n.querySelector('.pp')!.innerHTML = pips(face);
               c.sfx.tick();
             }
           });
-          if (fi < frames.length - 1) raf = requestAnimationFrame(step);
+          if (t < frames.length - 1) raf = requestAnimationFrame(step);
+          else nodes.forEach((n) => n?.querySelector('.spin')?.setAttribute('transform', 'rotate(0)'));
         };
         raf = requestAnimationFrame(step);
         lastSig = '';
@@ -135,14 +212,23 @@ export const tumbleViews: GameViews = {
 };
 
 /** The flick pad: a portrait mini-board. Drag back from anywhere, let go to throw. */
+/** A board point on the portrait mini-board (launch at the bottom): side -1 top rail, 1 bottom rail. */
+function miniPt(x: number, side: number): string {
+  return `${((CY + side * halfWidth(x)) / BH) * 100},${160 - (x / BW) * 160}`;
+}
+/** Where a launch lane (0–1) sits across the phone, as a fraction of its width. */
+const laneX = (lane: number) => (CY + (lane - 0.5) * 2 * (halfWidth(LAUNCH_X) - R)) / BH;
+
 function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
   const p = c.pub;
   el.innerHTML = `<div class="screen td-pad">
     <p class="prompt">Die ${p.throwNo} of 2 · drag back and let go</p>
     <div class="td-area"><svg viewBox="0 0 100 160" preserveAspectRatio="none" class="td-mini">
       <rect x="0" y="0" width="100" height="160" fill="#0b0820"/>
-      ${MULT.map((m, i) => { const y0 = 160 - (EDGES[i + 1] / BW) * 160; const h = ((EDGES[i + 1] - EDGES[i]) / BW) * 160; return `<rect x="0" y="${y0}" width="100" height="${h}" fill="${STEP_FILL[i]}"/><text x="50" y="${y0 + h / 2 + 4}" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.3)" font-weight="900">×${m}</text>`; }).join('')}
-      <rect x="0" y="${160 - (EDGES[0] / BW) * 160}" width="100" height="${(EDGES[0] / BW) * 160}" fill="#1a1440"/>
+      <rect x="0" y="0" width="100" height="${(1 - EDGES[4] / BW) * 160}" fill="rgba(255,77,109,.18)"/>
+      ${[0, ...EDGES].slice(0, 5).map((x0, k) => { const x1 = EDGES[k]; return `<polygon points="${miniPt(x0, -1)} ${miniPt(x1, -1)} ${miniPt(x1, 1)} ${miniPt(x0, 1)}" fill="${STEP_FILL[k][0]}" stroke="rgba(255,255,255,.25)" stroke-width=".6" vector-effect="non-scaling-stroke"/>`; }).join('')}
+      ${MULT.map((m, i) => `<text x="50" y="${160 - ((EDGES[i] + EDGES[i + 1]) / 2 / BW) * 160 + 4}" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.4)" font-weight="900">×${m}</text>`).join('')}
+      ${POSTS.map(([x, y]) => `<circle cx="${(y / BH) * 100}" cy="${160 - (x / BW) * 160}" r="2.2" fill="#fff"/>`).join('')}
     </svg>${(p.dice as Die[]).map((d) => { const pl = who(c.players, d.owner); return `<i class="td-dot" style="left:${(d.y / BH) * 100}%;bottom:${(d.x / BW) * 100}%;--dc:${pl ? color(pl.look) : '#888'}">${d.face}</i>`; }).join('')}<div class="td-ball"></div><div class="td-arrow"></div></div>
     <div class="td-power"><i></i></div>
   </div>`;
@@ -154,7 +240,7 @@ function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
   let start: { x: number; y: number } | null = null;
   let shot = { aim: 0, power: 0 };
   const place = () => {
-    ball.style.left = `${lane * 100}%`;
+    ball.style.left = `${laneX(lane) * 100}%`;
   };
   place();
   const calc = (e: PointerEvent) => {
@@ -168,14 +254,18 @@ function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
     shot = { aim: ang / 0.5, power: -dy > 0 ? power : 0 };
     arrow.style.height = `${shot.power * 70}%`;
     arrow.style.transform = `translateX(-50%) rotate(${ang}rad)`;
-    arrow.style.left = `${lane * 100}%`;
+    arrow.style.left = `${laneX(lane) * 100}%`;
     bar.style.width = `${shot.power * 100}%`;
     bar.style.background = shot.power > 0.85 ? 'var(--bad)' : shot.power > 0.55 ? 'var(--gold)' : 'var(--good)';
   };
   area.addEventListener('pointerdown', (e) => {
     const r = area.getBoundingClientRect();
     area.setPointerCapture(e.pointerId);
-    lane = Math.max(0.08, Math.min(0.92, (e.clientX - r.left) / r.width));
+    // Touch anywhere: the die starts at the matching spot across the launch pad.
+    const lo = laneX(0);
+    const hi = laneX(1);
+    const fx = (e.clientX - r.left) / r.width;
+    lane = Math.max(0, Math.min(1, (fx - Math.min(lo, 0.12)) / (Math.max(hi, 0.88) - Math.min(lo, 0.12))));
     place();
     start = { x: e.clientX, y: e.clientY };
     shot = { aim: 0, power: 0 };

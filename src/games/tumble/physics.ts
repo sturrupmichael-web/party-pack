@@ -1,8 +1,9 @@
 /**
  * A tiny top-down dice simulation for Tumble Steps. The board runs left to
- * right: a launch pad, then four steps (×1 to ×4), then the drop-off. Dice
- * slide with friction, bounce off the side rails and each other, and re-roll
- * whenever they tumble down a step. Deterministic for a given rand().
+ * right: a narrow launch pad, then four steps (×1 to ×4) that fan out wider
+ * as they go, then the drop-off. Dice slide with friction, bounce off the
+ * slanted side rails, the bumper posts and each other, and re-roll whenever
+ * they tumble down a step. Deterministic for a given rand().
  */
 export const BW = 1600;
 export const BH = 640;
@@ -11,6 +12,21 @@ export const LAUNCH_X = 110;
 /** Step edges: [start, end) for ×1, ×2, ×3, ×4. Past the last edge = off. */
 export const EDGES = [300, 640, 940, 1200, 1420];
 export const MULT = [1, 2, 3, 4];
+/** The board's centre line, and its half-width at the launch end and at the far end. */
+export const CY = BH / 2;
+export const HALF_NEAR = 150;
+export const HALF_FAR = BH / 2;
+const SLOPE = (HALF_FAR - HALF_NEAR) / EDGES[4];
+/** Bumper posts on the ×3 step: [x, y, radius]. */
+export const POSTS: Array<[number, number, number]> = [
+  [1080, CY - 150, 18],
+  [1080, CY + 150, 18],
+];
+
+/** Half the board's width at x: it fans out from the launch pad to the last step. */
+export function halfWidth(x: number): number {
+  return x >= EDGES[4] ? HALF_FAR : HALF_NEAR + Math.max(0, x) * SLOPE;
+}
 export const MIN_SPEED = 380;
 export const MAX_SPEED = 1500;
 const FRICTION = 640; // units/s²
@@ -58,7 +74,7 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
   const speed = MIN_SPEED + (MAX_SPEED - MIN_SPEED) * Math.max(0, Math.min(1, t.power));
   const ang = Math.max(-1, Math.min(1, t.aim)) * 0.5; // up to ~29°
   thrown.x = LAUNCH_X;
-  thrown.y = R + (BH - 2 * R) * Math.max(0, Math.min(1, t.lane));
+  thrown.y = CY + (Math.max(0, Math.min(1, t.lane)) - 0.5) * 2 * (halfWidth(LAUNCH_X) - R);
   thrown.gone = false;
   v[all.length - 1] = { x: Math.cos(ang) * speed, y: Math.sin(ang) * speed };
   const frames: Frame[] = [];
@@ -95,9 +111,39 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
         v[i].y += (rand() - 0.5) * 120;
         tumbles++;
       }
-      // Side rails.
-      if (d.y < R) ((d.y = R), (v[i].y = Math.abs(v[i].y) * 0.6));
-      if (d.y > BH - R) ((d.y = BH - R), (v[i].y = -Math.abs(v[i].y) * 0.6));
+      // Slanted side rails: push back inside and bounce off the rail's normal.
+      const s = d.x >= EDGES[4] ? 0 : SLOPE;
+      const norm = Math.hypot(s, 1);
+      for (const side of [-1, 1]) {
+        const n = { x: s / norm, y: -side / norm }; // points into the board
+        const edgeY = CY + side * halfWidth(d.x);
+        const dist = ((d.y - edgeY) * -side) / norm;
+        if (dist < R) {
+          d.x += n.x * (R - dist);
+          d.y += n.y * (R - dist);
+          const vn = v[i].x * n.x + v[i].y * n.y;
+          if (vn < 0) {
+            v[i].x -= 1.6 * vn * n.x;
+            v[i].y -= 1.6 * vn * n.y;
+          }
+        }
+      }
+      // Bumper posts.
+      for (const [px, py, pr] of POSTS) {
+        const dx = d.x - px;
+        const dy = d.y - py;
+        const dist = Math.hypot(dx, dy);
+        if (dist >= R + pr || dist === 0) continue;
+        const n = { x: dx / dist, y: dy / dist };
+        d.x = px + n.x * (R + pr);
+        d.y = py + n.y * (R + pr);
+        const vn = v[i].x * n.x + v[i].y * n.y;
+        if (vn < 0) {
+          v[i].x -= 1.8 * vn * n.x;
+          v[i].y -= 1.8 * vn * n.y;
+          hits++;
+        }
+      }
       // The back wall of the launch pad.
       if (d.x < R) ((d.x = R), (v[i].x = Math.abs(v[i].x) * 0.5));
     }

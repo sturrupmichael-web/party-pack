@@ -317,8 +317,18 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .td-banner { flex: none; max-width: 520px; font-size: 38px; font-weight: 800; line-height: 1.1; }
 .td-banner small { display: block; font-size: 22px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 .td-wrap { position: relative; flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; }
-.td-board { width: 100%; max-height: 100%; border-radius: 22px; box-shadow: 0 0 0 6px var(--line); }
-.td-die.fresh rect { stroke: #fff; }
+.td-wrap { perspective: 2400px; }
+.td-board { width: 100%; max-height: 100%; overflow: visible; transform: rotateX(15deg) scale(1.04); transform-origin: 50% 75%; }
+.td-die .bob { transform-box: fill-box; transform-origin: center; }
+.td-die .bob.drop { animation: td-drop .38s ease-out; }
+@keyframes td-drop { 0% { transform: scale(1.35) translateY(-14px); } 55% { transform: scale(.88, 1.08); } 100% { transform: none; } }
+.td-die.fresh .spin > rect:first-child { stroke: #fff; stroke-width: 6; }
+.td-die { transition: opacity .3s; }
+.td-die.fall .bob { animation: td-fall .8s ease-in forwards; }
+.td-die.fall .sh, .td-die.fade { opacity: 0; }
+@keyframes td-fall { 30% { transform: translate(30px, 10px) scale(1.05); } 100% { opacity: 0; transform: translate(90px, 160px) scale(.35) rotate(120deg); } }
+.td-board .chev { animation: td-chev 1.2s ease-in-out infinite; }
+@keyframes td-chev { 0%, 100% { opacity: .25; } 50% { opacity: .9; } }
 .td-rules { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 900px; background: rgba(18, 12, 44, .92); border: 4px solid var(--blue); border-radius: 26px; padding: 26px 34px; font-size: 30px; line-height: 1.35; text-align: center; transition: opacity .4s; }
 .td-rules b { display: block; color: var(--blue); font-size: 26px; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px; }
 .td-rules.hide { opacity: 0; pointer-events: none; }
