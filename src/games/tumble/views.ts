@@ -49,7 +49,7 @@ function strip(P: Player[], p: any): string {
     .map((k) => {
       const pl = who(P, k);
       if (!pl) return '';
-      return `<span class="td-chip ${p.turn === k && p.phase !== 'score' ? 'turn' : ''}" style="--pc:${color(pl.look)}">${avatar(pl.look, 44)}<b>${esc(pl.name)}</b><em>${p.board[k] ?? 0}</em><small>${p.totals[k] ? `+${p.totals[k]} banked` : ''}</small></span>`;
+      return `<span class="td-chip ${p.turn === k && p.phase !== 'score' ? 'turn' : ''}" style="--pc:${color(pl.look)}">${avatar(pl.look, 40)}<b>${esc(pl.name)}</b><em>${p.board[k] ?? 0}</em><small>${p.totals[k] ? `${p.totals[k]} banked` : 'on board'}</small></span>`;
     })
     .join('');
 }
@@ -75,10 +75,8 @@ export const tumbleViews: GameViews = {
       }
       if (p.round === 1) c.sfx.whoosh();
       el.innerHTML = `<div class="td-screen">
-        <div class="td-banner"></div>
-        ${p.round === 1 ? '<p class="td-rules">Flick 2 dice each from your phone: drag back, aim, let go. A die re-rolls every time it tumbles down a step. When the round ends, each die scores its face × its step. Off the end or stuck on the pad scores nothing.</p>' : ''}
-        <div class="td-wrap">${boardSvg()}</div>
-        <div class="td-strip"></div></div>`;
+        <div class="td-top"><div class="td-banner"></div><div class="td-strip"></div></div>
+        <div class="td-wrap">${boardSvg()}<div class="td-rules"><b>How to play</b>On your turn, flick 2 dice from your phone: drag back, aim, let go. A die re-rolls every time it tumbles down a step. When the round ends, each die scores its face × its step. Off the end, or stuck on the launch pad, scores nothing. Knock other dice off!</div></div></div>`;
       tumbleViews.host.update!(el, c);
     },
     update(el, c) {
@@ -91,7 +89,8 @@ export const tumbleViews: GameViews = {
       };
       const turnName = esc(who(c.players, p.turn)?.name ?? '');
       el.querySelector('.td-banner')!.innerHTML =
-        p.phase === 'roll' ? `<b>${turnName}</b> flicks!` : `Round ${p.round} of ${ROUNDS} · <b>${turnName}</b>, flick die ${p.throwNo} of 2 from your phone`;
+        p.phase === 'roll' ? `<small>Round ${p.round} of ${ROUNDS}</small><b>${turnName}</b> flicks!` : `<small>Round ${p.round} of ${ROUNDS} · die ${p.throwNo} of 2</small><b>${turnName}</b>, flick from your phone`;
+      el.querySelector('.td-rules')?.classList.toggle('hide', !(p.round === 1 && !p.dice.length && !p.anim));
       el.querySelector('.td-strip')!.innerHTML = strip(c.players, p);
       if (p.anim && p.anim.id !== animId) {
         animId = p.anim.id;
@@ -144,7 +143,7 @@ function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
       <rect x="0" y="0" width="100" height="160" fill="#0b0820"/>
       ${MULT.map((m, i) => { const y0 = 160 - (EDGES[i + 1] / BW) * 160; const h = ((EDGES[i + 1] - EDGES[i]) / BW) * 160; return `<rect x="0" y="${y0}" width="100" height="${h}" fill="${STEP_FILL[i]}"/><text x="50" y="${y0 + h / 2 + 4}" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.3)" font-weight="900">×${m}</text>`; }).join('')}
       <rect x="0" y="${160 - (EDGES[0] / BW) * 160}" width="100" height="${(EDGES[0] / BW) * 160}" fill="#1a1440"/>
-    </svg><div class="td-ball"></div><div class="td-arrow"></div></div>
+    </svg>${(p.dice as Die[]).map((d) => { const pl = who(c.players, d.owner); return `<i class="td-dot" style="left:${(d.y / BH) * 100}%;bottom:${(d.x / BW) * 100}%;--dc:${pl ? color(pl.look) : '#888'}">${d.face}</i>`; }).join('')}<div class="td-ball"></div><div class="td-arrow"></div></div>
     <div class="td-power"><i></i></div>
   </div>`;
   const area = el.querySelector<HTMLElement>('.td-area')!;

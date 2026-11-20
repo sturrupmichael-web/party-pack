@@ -51,7 +51,7 @@ export const moleViews: GameViews = {
             <div class="kicker">Round ${p.round + 1} of ${p.rounds}</div>
             <h1 class="title-l">Ask away!</h1>
             <p class="lead">${chip(P, p.firstAsker)} asks first. Whoever answers asks next.</p>
-            <ul class="tips"><li>Think someone's the mole? Accuse them on your phone.</li><li>Mole: tap <b>I know the place!</b> when you've worked it out.</li></ul>
+            <ul class="tips"><li>Think someone's the mole? Accuse them on your phone.</li><li>Mole: the <b>I know the place!</b> button is on your secret card.</li></ul>
           </div>
           <div class="mole-right"><div class="kicker">Possible places</div>${boardGrid(p.board)}</div>
         </div>`;
@@ -158,13 +158,14 @@ function phoneView(): GameViews['phone'] {
           return pickList(el, { title: 'Where are we?', sub: 'One guess. Right wins, wrong loses.', items: (p.board as string[]).map((b) => ({ id: b, label: b })), cols: 2, back: () => ((mode = 'card'), redraw()), onPick: (id) => send({ t: 'guess', place: id }) });
         }
         const face = pr.mole
-          ? `<div class="big">🕵️ You're the mole</div><p>Blend in, and work out the place from the questions.</p>`
-          : `<small class="muted">The place</small><div class="big">${esc(pr.place)}</div><p>You're the <b>${esc(pr.role)}</b></p>`;
+          ? `<div class="big">🕵️ You're the mole</div><p>Blend in, and work out the place from the questions.</p>${p.phase === 'ask' ? '<span class="btn primary" data-guess>I know the place!</span>' : ''}`
+          : `<small class="muted">The place</small><div class="big">${esc(pr.place)}</div><p>You're the <b>${esc(pr.role)}</b></p><small class="muted">Tap to hide</small>`;
         el.innerHTML = `<div class="screen">
           <button class="card-btn ${peek ? 'open' : ''}" data-peek>${peek ? face : '<div class="big">🂠</div><p>Tap to see your card in secret</p>'}</button>
-          ${p.phase === 'ask' ? (pr.mole ? '<button class="btn primary huge" data-guess>I know the place!</button>' : pr.canAccuse ? '<button class="btn huge" data-acc>Accuse someone</button>' : '<p class="muted center-t">You\'ve used your accusation this round.</p>') : ''}
+          ${p.phase === 'ask' ? (pr.canAccuse ? '<button class="btn huge" data-acc>Accuse someone</button>' : '<p class="muted center-t">You\'ve used your accusation this round.</p>') : ''}
         </div>`;
-        el.querySelector('[data-peek]')!.addEventListener('click', () => {
+        el.querySelector('[data-peek]')!.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('[data-guess]')) return;
           peek = !peek;
           redraw();
         });

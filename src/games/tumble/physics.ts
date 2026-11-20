@@ -6,7 +6,7 @@
  */
 export const BW = 1600;
 export const BH = 640;
-export const R = 30;
+export const R = 34;
 export const LAUNCH_X = 110;
 /** Step edges: [start, end) for ×1, ×2, ×3, ×4. Past the last edge = off. */
 export const EDGES = [300, 640, 940, 1200, 1420];

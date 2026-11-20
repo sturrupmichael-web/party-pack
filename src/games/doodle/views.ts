@@ -55,7 +55,7 @@ export const doodleViews: GameViews = {
           .map((k) => {
             const pl = who(c.players, k);
             const done = p.sent.includes(k);
-            return pl ? `<span class="pchip ${done ? 'done' : 'wait'}" style="--pc:${color(pl.look)}">${avatar(pl.look, 64)}<b>${esc(pl.name)}</b><i>${done ? '✓' : '…'}</i></span>` : '';
+            return pl ? `<div class="lock-chip ${done ? 'in' : ''}" style="--pc:${color(pl.look)}">${avatar(pl.look, 56)}<span>${esc(pl.name)}</span><b>${done ? '✓' : '…'}</b></div>` : '';
           })
           .join('');
         return;

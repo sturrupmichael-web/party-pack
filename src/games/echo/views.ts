@@ -52,7 +52,7 @@ export const echoViews: GameViews = {
           <div class="kicker">Round ${p.round + 1} of ${p.rounds}</div>
           <h1 class="title-l">Write your clues</h1>
           <p class="rules">${chip(P, p.guesser)} is waiting to guess. One word each!</p>
-          <div class="lock-row">${lockRow(c)}</div>
+          <div class="lock-row mid">${lockRow(c)}</div>
         </div>`;
         return;
       }
@@ -71,7 +71,7 @@ export const echoViews: GameViews = {
         el.innerHTML = `<div class="intro">
           <div class="kicker">The word was</div>
           <h1 class="title-xl pop">${esc(p.word)}</h1>
-          <p class="outcome ${p.correct ? 't-good' : 't-bad'}">${p.passed ? `${esc(who(P, p.guesser)?.name ?? '')} passed.` : `${esc(who(P, p.guesser)?.name ?? '')} guessed “${esc(p.guess ?? '…')}”. ${p.correct ? 'Correct!' : 'Not quite.'}`}</p>
+          <p class="outcome ${p.correct ? 't-good' : 't-bad'}">${p.passed ? `${esc(who(P, p.guesser)?.name ?? '')} passed.` : `${esc(who(P, p.guesser)?.name ?? '')} ${p.guess ? `guessed “${esc(p.guess)}”. ${p.correct ? 'Correct!' : 'Not quite.'}` : 'ran out of time.'}`}</p>
           ${clueCards(P, p.clues, true)}
         </div>`;
       }

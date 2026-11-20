@@ -23,10 +23,11 @@ export function cup(kind: 'down' | 'mild' | 'hot', tint = '#a99fd6', size = 56):
 function seatHtml(P: Player[], p: any, k: string): string {
   const pl = who(P, k);
   if (!pl) return '';
+  const sz = p.order.length <= 4 ? 120 : p.order.length <= 6 ? 96 : 84;
   const out = p.out.includes(k);
   const flips = (p.flipped as Array<{ owner: string; cup: 'mild' | 'hot' }>).filter((f) => f.owner === k);
   const down = Math.max(0, p.counts[k] - flips.length);
-  const cups = [...Array(down).fill(cup('down', color(pl.look), 84)), ...flips.map((f) => `<span class="flip">${cup(f.cup, '', 84)}</span>`)].join('');
+  const cups = [...Array(down).fill(cup('down', color(pl.look), sz)), ...flips.map((f) => `<span class="flip">${cup(f.cup, '', sz)}</span>`)].join('');
   const turn = p.turn === k && p.phase !== 'result' && p.phase !== 'first';
   const placedFirst = p.phase === 'first' && p.firstDone?.includes(k);
   return `<div class="hs-seat ${out ? 'out' : ''} ${turn ? 'turn' : ''}" style="--pc:${color(pl.look)}">
