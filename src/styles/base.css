@@ -1,0 +1,47 @@
+:root {
+  --bg: #120c2c;
+  --bg2: #1d1546;
+  --panel: #251b5a;
+  --ink: #fdfbff;
+  --muted: #a99fd6;
+  --line: #3a2e7a;
+  --good: #3ddc97;
+  --bad: #ff4d6d;
+  --gold: #ffb703;
+  --blue: #4cc9f0;
+  --font: 'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: var(--font); }
+button, input { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: .85em; }
+.warn { color: var(--gold); }
+.t-bad { color: var(--bad); }
+.t-good { color: var(--good); }
+kbd { display: inline-block; padding: .05em .45em; border: 2px solid var(--line); border-bottom-width: 4px; border-radius: 8px; font: inherit; font-size: .85em; background: var(--bg2); }
+
+.btn { border: 0; border-radius: 14px; padding: .6em 1.2em; background: var(--panel); font-weight: 700; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.35); transition: transform .08s; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.35); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--gold); color: var(--bg); }
+.btn.danger { background: var(--bad); color: #fff; }
+.btn.small { padding: .4em .8em; font-size: .9em; border-radius: 10px; }
+.btn.big { font-size: 1.25em; padding: .75em 1.4em; }
+.btn.huge { font-size: 1.5em; padding: .9em 1.2em; width: 100%; border-radius: 20px; }
+.link { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: .5em; }
+.avatar { display: block; flex: none; }
+
+/* message cards (shared by the TV) */
+mark.clue { background: rgba(255, 77, 109, .22); color: inherit; border-radius: 6px; padding: 0 .15em; box-shadow: inset 0 -4px 0 var(--bad); position: relative; animation: clue-in .5s both; }
+mark.clue::after { content: attr(data-n); position: absolute; top: -.85em; right: -.6em; background: var(--bad); color: #fff; font-size: .55em; font-weight: 900; width: 1.5em; height: 1.5em; border-radius: 50%; display: grid; place-items: center; }
+@keyframes clue-in { from { background: transparent; box-shadow: none; } }
+
+@keyframes fade-in { from { opacity: 0; transform: translateY(12px); } }
+.fade-in { animation: fade-in .35s ease-out both; }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.06); } 100% { transform: scale(1); } }
+.pop { animation: pop .45s cubic-bezier(.2,.9,.3,1.3) both; }
+@keyframes slide-in { from { transform: translateY(40px) rotate(-1deg); opacity: 0; } }
+.slide-in { animation: slide-in .5s cubic-bezier(.2,.9,.3,1.1) both; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; } }

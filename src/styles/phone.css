@@ -1,0 +1,74 @@
+/* Phone: portrait, one primary action per screen, never scrolls during play. */
+html:has(body.phone), body.phone { overflow: hidden; overscroll-behavior: none; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+body.phone { position: fixed; inset: 0; font-size: 18px; }
+#app { height: 100%; }
+input { -webkit-user-select: text; user-select: text; }
+
+.screen { height: 100%; display: flex; flex-direction: column; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); gap: 14px; }
+.screen.center { align-items: center; justify-content: center; text-align: center; }
+.big { font-size: 2em; font-weight: 900; margin: .2em 0; line-height: 1.1; }
+h2 { margin: .2em 0; }
+.kicker { text-transform: uppercase; letter-spacing: 2px; font-size: .8em; font-weight: 700; color: var(--muted); margin: 0; }
+
+/* join */
+.join { justify-content: center; align-items: stretch; max-width: 420px; margin: 0 auto; text-align: center; }
+.join h1 { margin: 0; font-size: 1.7em; }
+.join h1 b { color: var(--gold); }
+.logo-big { font-size: 64px; color: var(--gold); line-height: 1; }
+.join input { width: 100%; padding: 16px 18px; border-radius: 16px; border: 3px solid var(--line); background: var(--bg2); font-size: 20px; text-align: center; outline: none; }
+.join input:focus { border-color: var(--gold); }
+.join .code-in { font-size: 34px; font-weight: 900; letter-spacing: 10px; text-transform: uppercase; }
+.join .code-in::placeholder { letter-spacing: 2px; font-size: 20px; font-weight: 500; }
+
+/* shell */
+.phone-root { height: 100%; display: flex; flex-direction: column; border-top: 6px solid var(--me, var(--gold)); position: relative; }
+.topbar { flex: none; display: flex; align-items: center; gap: 10px; padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top)); background: var(--bg2); min-height: 58px; }
+.topbar .nm { font-weight: 900; font-size: 1.1em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar .vip { font-size: .8em; color: var(--gold); font-weight: 700; white-space: nowrap; }
+.topbar .aud { font-size: .8em; color: var(--blue); font-weight: 700; }
+.topbar .score { margin-left: auto; font-weight: 700; white-space: nowrap; }
+.tbar { flex: none; height: 26px; background: var(--bg); position: relative; }
+.tbar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--gold); transition: background .3s; }
+.tbar span { position: absolute; right: 10px; top: 0; line-height: 26px; font-weight: 900; font-size: 15px; }
+.tbar.urgent i { background: var(--bad); }
+.body { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.body > * { height: 100%; }
+.game-box { height: 100%; }
+.vipbar { flex: none; display: flex; gap: 10px; justify-content: flex-end; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--bg2); }
+.ptoast { position: absolute; left: 12px; right: 12px; bottom: 80px; background: var(--gold); color: var(--bg); font-weight: 700; padding: 14px 16px; border-radius: 14px; text-align: center; z-index: 10; }
+.cover { position: absolute; inset: 0; background: rgba(18, 12, 44, .96); display: grid; place-items: center; text-align: center; padding: 24px; z-index: 20; }
+.cover div { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.spinner { width: 48px; height: 48px; border-radius: 50%; border: 6px solid var(--line); border-top-color: var(--gold); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tv-icon { width: 120px; height: 84px; border: 8px solid var(--me, var(--gold)); border-radius: 16px; position: relative; margin-bottom: 18px; animation: bob 2s ease-in-out infinite; }
+.tv-icon::after { content: ''; position: absolute; left: 50%; bottom: -26px; width: 50px; height: 10px; border-radius: 5px; background: var(--me, var(--gold)); transform: translateX(-50%); }
+.tv-icon span::before, .tv-icon span::after { content: ''; position: absolute; top: 22px; width: 14px; height: 14px; border-radius: 50%; background: var(--me, var(--gold)); }
+.tv-icon span::before { left: 28px; }
+.tv-icon span::after { right: 28px; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+
+/* VIP menu */
+.vip-menu { justify-content: space-between; }
+.glist { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 0; justify-content: center; }
+.gbtn { display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 12px; align-items: center; text-align: left; padding: 10px 14px; border-radius: 16px; border: 3px solid var(--line); background: var(--bg2); cursor: pointer; }
+.gbtn span { grid-row: span 2; font-size: 30px; }
+.gbtn b { font-size: 1.05em; }
+.gbtn small { color: var(--muted); font-size: .8em; }
+.gbtn.on { border-color: var(--ac); background: color-mix(in srgb, var(--ac) 18%, var(--bg2)); }
+.gbtn:disabled { opacity: .45; }
+
+/* two big choices */
+.two-choice { gap: 16px; }
+.two-choice .prompt { margin: 0; text-align: center; color: var(--muted); font-weight: 700; }
+.choice { flex: 1; border: 0; border-radius: 26px; font-size: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; box-shadow: 0 8px 0 rgba(0,0,0,.35); transition: transform .08s; }
+.choice span { font-size: 40px; font-weight: 900; letter-spacing: 2px; }
+.choice:active { transform: translateY(6px); box-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.choice.bad { background: var(--bad); color: #fff; }
+.choice.good { background: var(--good); color: var(--bg); }
+.locked { font-size: 2.2em; font-weight: 900; padding: .3em .7em; border-radius: 20px; border: 6px solid currentColor; animation: pop .4s both; }
+.locked.bad { color: var(--bad); }
+.locked.good { color: var(--good); }
+.result-face { font-size: 90px; animation: pop .5s both; }
+.good-bg { background: radial-gradient(circle at 50% 40%, rgba(61, 220, 151, .35), transparent 70%); }
+.bad-bg { background: radial-gradient(circle at 50% 40%, rgba(255, 77, 109, .3), transparent 70%); }

@@ -1,0 +1,351 @@
+{
+  "_readme": "Phish or Legit messages. kind: email | url | sms. answer: phish | legit. Every clue's `text` must appear word for word in from, subject, body or url: the TV highlights it on the reveal. `context` (optional) is a line of background shown above the message. Company and brand names here are made up.",
+  "items": [
+    {
+      "id": "pl01", "kind": "email", "answer": "phish",
+      "from": "MegaSoft 365 Security <security@megasoft-365-alerts.com>",
+      "subject": "Unusual sign-in activity",
+      "body": "We detected a sign-in to your account from an unrecognised device in another country. If this wasn't you, verify your identity within 24 hours or your mailbox will be suspended.\n\nVerify now: http://megasoft-365-alerts.com/verify",
+      "clues": [
+        { "text": "megasoft-365-alerts.com", "why": "Not megasoft.com. A look-alike domain with extra words bolted on." },
+        { "text": "within 24 hours", "why": "A deadline and a threat, so you rush." },
+        { "text": "http://", "why": "A 'security' link without HTTPS." }
+      ]
+    },
+    {
+      "id": "pl02", "kind": "email", "answer": "legit",
+      "from": "Pinecrest IT <it@pinecrest.co>",
+      "subject": "Planned maintenance: Saturday 6am to 9am",
+      "body": "The VPN and file shares will be offline on Saturday from 6am to 9am while we patch the servers. You don't need to do anything.\n\nQuestions? Reply here or open a ticket in the IT portal.",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "clues": [
+        { "text": "it@pinecrest.co", "why": "Your own company's real domain." },
+        { "text": "You don't need to do anything", "why": "No link, no login, no attachment." },
+        { "text": "open a ticket in the IT portal", "why": "Points you to the usual channel." }
+      ]
+    },
+    {
+      "id": "pl03", "kind": "url", "answer": "phish",
+      "url": "https://payportal.com.secure-login.info/signin",
+      "body": "PayPortal: Log in to your account",
+      "clues": [
+        { "text": "secure-login.info", "why": "The real domain is the last part before the first single slash: secure-login.info. 'payportal.com' is just a subdomain decoration." }
+      ]
+    },
+    {
+      "id": "pl04", "kind": "url", "answer": "legit",
+      "url": "https://www.kestrelbank.com/personal/login",
+      "body": "Kestrel Bank: Sign in to Online Banking",
+      "clues": [
+        { "text": "kestrelbank.com", "why": "The domain is exactly the bank's own, followed by a normal path." },
+        { "text": "https://", "why": "A secure connection." }
+      ]
+    },
+    {
+      "id": "pl05", "kind": "sms", "answer": "phish",
+      "from": "+1 (845) 555-0199",
+      "body": "ParcelDash: Your parcel is on hold due to an unpaid $1.99 customs fee. Pay now to avoid return: parceldash-redelivery.top/pay",
+      "clues": [
+        { "text": "unpaid $1.99", "why": "A tiny fee is bait to get your card details." },
+        { "text": "parceldash-redelivery.top", "why": "Not the courier's domain, on a cheap throwaway ending." },
+        { "text": "+1 (845) 555-0199", "why": "A random personal number, not the company's usual sender." }
+      ]
+    },
+    {
+      "id": "pl06", "kind": "sms", "answer": "legit",
+      "from": "52886",
+      "context": "You just tried to sign in to CodeVault.",
+      "body": "Your CodeVault verification code is 418 207. It expires in 10 minutes. Don't share it with anyone. CodeVault will never ask for it.",
+      "clues": [
+        { "text": "Don't share it with anyone", "why": "Warns you off sharing, and there's no link." },
+        { "text": "52886", "why": "The service's usual short code, and you were expecting it." }
+      ]
+    },
+    {
+      "id": "pl07", "kind": "email", "answer": "phish",
+      "from": "Dana Whitfield (CEO) <dana.whitfield.ceo@gmail.com>",
+      "subject": "Quick favour",
+      "body": "Are you at your desk? I need you to buy 5 x $200 gift cards for a client today. Keep this between us for now, it's a surprise. Email me the codes as soon as you have them. I'm in meetings so I can't take calls.",
+      "clues": [
+        { "text": "gmail.com", "why": "Your CEO's personal-looking address, not the company one." },
+        { "text": "gift cards", "why": "The classic scam payout: untraceable and instant." },
+        { "text": "Keep this between us", "why": "Secrecy stops you checking with anyone." },
+        { "text": "can't take calls", "why": "Blocks the obvious way to verify." }
+      ]
+    },
+    {
+      "id": "pl08", "kind": "email", "answer": "legit",
+      "from": "CloudCrate <no-reply@cloudcrate.io>",
+      "subject": "Your monthly invoice is ready",
+      "context": "Your team pays for CloudCrate storage.",
+      "body": "Hi Pinecrest team,\nYour CloudCrate invoice for October ($240.00) is ready. It will be charged to the card ending 4417 on file on Nov 5.\nView it any time under Billing at cloudcrate.io.",
+      "clues": [
+        { "text": "no-reply@cloudcrate.io", "why": "The vendor's real domain." },
+        { "text": "card ending 4417 on file", "why": "Details you'd recognise, and it asks for nothing." },
+        { "text": "under Billing at cloudcrate.io", "why": "Tells you to go to the site yourself instead of clicking." }
+      ]
+    },
+    {
+      "id": "pl09", "kind": "email", "answer": "phish",
+      "from": "HR Department <hr@pinecrest-co.com>",
+      "subject": "2026 Salary Adjustment: ACTION REQUIRED",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "Please review your updated salary details in the attached document and sign by end of day.\n\nAttachment: Salary_Review_2026.html",
+      "clues": [
+        { "text": "pinecrest-co.com", "why": "A look-alike of pinecrest.co." },
+        { "text": "ACTION REQUIRED", "why": "Shouty urgency." },
+        { "text": "Salary_Review_2026.html", "why": "An HTML attachment usually opens a fake login page." }
+      ]
+    },
+    {
+      "id": "pl10", "kind": "url", "answer": "phish",
+      "url": "http://megas0ft.com/account/reset",
+      "body": "MegaSoft account: Reset your password",
+      "clues": [
+        { "text": "megas0ft", "why": "A zero where the letter o should be." },
+        { "text": "http://", "why": "A password page with no HTTPS." }
+      ]
+    },
+    {
+      "id": "pl11", "kind": "url", "answer": "legit",
+      "url": "https://codevault.dev/settings/security",
+      "body": "CodeVault: Security settings",
+      "clues": [
+        { "text": "codevault.dev", "why": "The real domain, then an ordinary settings path." }
+      ]
+    },
+    {
+      "id": "pl12", "kind": "sms", "answer": "phish",
+      "from": "Kestrel Bank",
+      "body": "KESTREL ALERT: A payment of $2,450.00 to J. MORRIS was approved. If you did NOT make this, call our fraud team now on 1-888-555-0143.",
+      "clues": [
+        { "text": "call our fraud team now on 1-888-555-0143", "why": "Call the number on the back of your card, never one from the message." },
+        { "text": "$2,450.00", "why": "A scary amount to make you panic." },
+        { "text": "Kestrel Bank", "why": "Sender names on texts are easy to fake." }
+      ]
+    },
+    {
+      "id": "pl13", "kind": "email", "answer": "legit",
+      "from": "TalkLoop <calendar@talkloop.app>",
+      "subject": "Invitation: Sprint review @ Thu 2pm",
+      "context": "Priya is on your team, and your team uses TalkLoop.",
+      "body": "Priya Shah has invited you to Sprint review.\nThursday 2:00pm to 2:45pm\nJoin from the TalkLoop app, or accept from your calendar.",
+      "clues": [
+        { "text": "calendar@talkloop.app", "why": "The real sender domain for an app you use." },
+        { "text": "Priya Shah", "why": "Someone you know, about a meeting you'd expect." },
+        { "text": "Join from the TalkLoop app", "why": "No odd links or attachments." }
+      ]
+    },
+    {
+      "id": "pl14", "kind": "email", "answer": "phish",
+      "from": "IT Helpdesk <helpdesk@pinecrest.co.support-desk.net>",
+      "subject": "Mailbox full: 98% used",
+      "body": "Your mailbox has exceeded its storage limit. Incoming mail will be rejected. Click below and log in to increase your quota for free.\n\n[ Increase quota ]",
+      "clues": [
+        { "text": "support-desk.net", "why": "The real domain is support-desk.net, not pinecrest.co." },
+        { "text": "log in to increase your quota", "why": "IT never needs your password to give you more space." },
+        { "text": "Incoming mail will be rejected", "why": "Fear of missing mail, to rush you." }
+      ]
+    },
+    {
+      "id": "pl15", "kind": "email", "answer": "legit",
+      "from": "Pinecrest Security Team <security@pinecrest.co>",
+      "subject": "Practice phishing results: well done!",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "Last week's practice phishing email was reported by 82% of staff. Thank you!\nKeep using the Report button in your mail app for anything suspicious.",
+      "clues": [
+        { "text": "security@pinecrest.co", "why": "Your own company's domain." },
+        { "text": "Keep using the Report button", "why": "Points to a built-in tool. No link to click." }
+      ]
+    },
+    {
+      "id": "pl16", "kind": "url", "answer": "phish",
+      "url": "https://drive-cloudcrate.io-share.com/f/Q3_Budget.xlsx",
+      "body": "CloudCrate: Sign in to view this shared file",
+      "clues": [
+        { "text": "io-share.com", "why": "The real domain is io-share.com. 'cloudcrate' is just decoration." },
+        { "text": "Sign in to view", "why": "A login wall on a 'shared file' is a classic password grab." }
+      ]
+    },
+    {
+      "id": "pl17", "kind": "url", "answer": "legit",
+      "url": "https://help.pinecrest.co/kb/vpn-setup",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "Pinecrest Help Center: How to set up the VPN",
+      "clues": [
+        { "text": "help.pinecrest.co", "why": "A subdomain of your company's real domain." }
+      ]
+    },
+    {
+      "id": "pl18", "kind": "sms", "answer": "phish",
+      "from": "+44 7700 900412",
+      "body": "Hi Mum, I dropped my phone in the bath, this is my new number. Can you help me pay a bill today? I'll pay you back tomorrow x",
+      "clues": [
+        { "text": "this is my new number", "why": "'New number' plus a money request: call the old number to check." },
+        { "text": "pay a bill today", "why": "An urgent payment request." }
+      ]
+    },
+    {
+      "id": "pl19", "kind": "email", "answer": "phish",
+      "from": "CodeVault <noreply@codevault.dev>",
+      "subject": "New SSH key added to your account",
+      "body": "Someone added a new SSH key to your account. If this wasn't you, revoke it here:\nhttps://codevault.dev.revoke-key.co/session",
+      "clues": [
+        { "text": "revoke-key.co", "why": "The link goes to revoke-key.co, not codevault.dev." },
+        { "text": "noreply@codevault.dev", "why": "The sender looks right, but sender addresses can be faked. Always check the link." }
+      ]
+    },
+    {
+      "id": "pl20", "kind": "email", "answer": "legit",
+      "from": "ParcelDash <updates@parceldash.com>",
+      "subject": "Your order is out for delivery",
+      "context": "You ordered a laptop stand on Monday.",
+      "body": "Order #PD-48213 from Gadget Outlet is out for delivery today between 1pm and 4pm.\nTrack it in the ParcelDash app.",
+      "clues": [
+        { "text": "updates@parceldash.com", "why": "The courier's real domain." },
+        { "text": "Track it in the ParcelDash app", "why": "No payment and no link: just the app you already have." }
+      ]
+    },
+    {
+      "id": "pl21", "kind": "email", "answer": "phish",
+      "from": "Revenue Service <refunds@revenue-service-refund.com>",
+      "subject": "You are eligible for a tax refund of $612.40",
+      "body": "After the annual calculation of your fiscal activity we have determined that you are eligible to receive a tax refund of $612.40. Please submit the form with your card details to receive your refund within 3 business days.",
+      "clues": [
+        { "text": "revenue-service-refund.com", "why": "Tax offices don't use .com look-alike domains." },
+        { "text": "card details", "why": "Refunds never need your card number." },
+        { "text": "fiscal activity", "why": "Odd, stiff wording is common in scams." }
+      ]
+    },
+    {
+      "id": "pl22", "kind": "sms", "answer": "legit",
+      "from": "PayPortal",
+      "context": "You just paid Sam back for lunch.",
+      "body": "PayPortal: You sent $25.00 to Sam Lee. Not you? Open the PayPortal app to review.",
+      "clues": [
+        { "text": "You sent $25.00 to Sam Lee", "why": "Matches exactly what you just did." },
+        { "text": "Open the PayPortal app", "why": "Sends you to the app, not a link." }
+      ]
+    },
+    {
+      "id": "pl23", "kind": "url", "answer": "phish",
+      "url": "https://kestre1bank.com/secure/login",
+      "body": "Kestrel Bank: Online Banking",
+      "clues": [
+        { "text": "kestre1bank", "why": "The number 1 instead of the letter l." }
+      ]
+    },
+    {
+      "id": "pl24", "kind": "url", "answer": "phish",
+      "url": "https://pinecrest.co@203.0.113.54/login",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "Pinecrest Single Sign-On",
+      "clues": [
+        { "text": "@203.0.113.54", "why": "Browsers ignore everything before the @. This goes to a bare IP address." }
+      ]
+    },
+    {
+      "id": "pl25", "kind": "url", "answer": "legit",
+      "url": "https://payportal.com/myaccount/summary",
+      "body": "PayPortal: Account summary",
+      "clues": [
+        { "text": "payportal.com", "why": "Exactly the real domain, with an ordinary path." }
+      ]
+    },
+    {
+      "id": "pl26", "kind": "email", "answer": "phish",
+      "from": "MegaSoft Teams Notification <notify@megasoftteams.net>",
+      "subject": "You have 3 unread voice messages",
+      "body": "You received a voicemail (0:42) from +1 212 555 0177.\nPlay the message: Voicemail_0042.htm",
+      "clues": [
+        { "text": "megasoftteams.net", "why": "Not megasoft.com." },
+        { "text": "Voicemail_0042.htm", "why": "Voicemails aren't web pages. An .htm attachment is a fake login." },
+        { "text": "3 unread voice messages", "why": "Curiosity bait." }
+      ]
+    },
+    {
+      "id": "pl27", "kind": "email", "answer": "legit",
+      "from": "Pinecrest Payroll <payroll@pinecrest.co>",
+      "subject": "Your November payslip is available",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "Your payslip is ready in the HR portal. For your security we don't attach payslips or include links. Sign in to the HR portal as usual to view it.",
+      "clues": [
+        { "text": "payroll@pinecrest.co", "why": "Your company's real domain." },
+        { "text": "we don't attach payslips or include links", "why": "Exactly what a careful sender does." }
+      ]
+    },
+    {
+      "id": "pl28", "kind": "email", "answer": "phish",
+      "from": "Pinecrest Facilities <facilities@pinecrest-office.com>",
+      "subject": "New parking permits: scan to register",
+      "context": "You work at Pinecrest (pinecrest.co).",
+      "body": "All staff must re-register for parking by Friday. Scan the QR code below with your phone and sign in with your work account.\n\n[ QR CODE ]",
+      "clues": [
+        { "text": "pinecrest-office.com", "why": "A look-alike of pinecrest.co." },
+        { "text": "sign in with your work account", "why": "Parking doesn't need your work password." },
+        { "text": "Scan the QR code", "why": "QR codes hide the link and move you to your less protected phone." }
+      ]
+    },
+    {
+      "id": "pl29", "kind": "sms", "answer": "legit",
+      "from": "Pinecrest IT",
+      "context": "You logged a ticket about your laptop yesterday.",
+      "body": "Pinecrest IT: Ticket #8812 'Laptop won't charge' is resolved. Reply 1 if it's still broken.",
+      "clues": [
+        { "text": "Ticket #8812 'Laptop won't charge'", "why": "Matches the ticket you actually logged." },
+        { "text": "Reply 1", "why": "No link, no login, nothing to pay." }
+      ]
+    },
+    {
+      "id": "pl30", "kind": "sms", "answer": "phish",
+      "from": "+1 (302) 555-0122",
+      "body": "MegaSoft Support: We detected a virus on your PC. Call us now at 1-844-555-0190 so a technician can connect remotely and remove it.",
+      "clues": [
+        { "text": "We detected a virus on your PC", "why": "Nobody outside can see viruses on your computer." },
+        { "text": "connect remotely", "why": "Remote access lets them take over your PC." },
+        { "text": "+1 (302) 555-0122", "why": "Big software companies don't text you from personal numbers." }
+      ]
+    },
+    {
+      "id": "pl31", "kind": "email", "answer": "legit",
+      "from": "CodeVault <noreply@codevault.dev>",
+      "subject": "[pinecrest/web] Pull request #212 merged",
+      "context": "You opened pull request #212 this morning.",
+      "body": "alex-k merged #212 'Fix login redirect' into main.\nView it on codevault.dev, or turn off these notifications in Settings.",
+      "clues": [
+        { "text": "#212 'Fix login redirect'", "why": "The pull request you actually opened." },
+        { "text": "View it on codevault.dev", "why": "Sends you to the real site, and asks for nothing." }
+      ]
+    },
+    {
+      "id": "pl32", "kind": "email", "answer": "phish",
+      "from": "SignStack <sign@signstack-docs.co>",
+      "subject": "Pinecrest Contract: Signature needed (2 documents)",
+      "context": "You don't know anyone called Gary Holt.",
+      "body": "Gary Holt has sent you 2 documents to review and sign.\n\n[ REVIEW DOCUMENTS ]\n\nThis link expires in 4 hours.",
+      "clues": [
+        { "text": "Gary Holt", "why": "A stranger sending you a contract out of the blue." },
+        { "text": "expires in 4 hours", "why": "A countdown to rush you." },
+        { "text": "signstack-docs.co", "why": "An odd domain for an e-signature service." }
+      ]
+    },
+    {
+      "id": "pl33", "kind": "url", "answer": "legit",
+      "url": "https://cloudcrate.io/s/7Hk2pQ",
+      "context": "Priya said in chat that she just shared the budget with you.",
+      "body": "CloudCrate: Q3_Budget.xlsx shared with you by Priya Shah",
+      "clues": [
+        { "text": "cloudcrate.io", "why": "The real domain, with a short share link." },
+        { "text": "shared with you by Priya Shah", "why": "Expected: Priya told you it was coming." }
+      ]
+    },
+    {
+      "id": "pl34", "kind": "url", "answer": "phish",
+      "url": "https://megasoft.com-login.verify-account.app/oauth",
+      "body": "MegaSoft: Verify your account",
+      "clues": [
+        { "text": "verify-account.app", "why": "The real domain is verify-account.app. 'megasoft.com-login' is a subdomain made to fool you." }
+      ]
+    }
+  ]
+}
