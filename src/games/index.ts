@@ -11,6 +11,10 @@ import { echoLogic } from './echo/logic';
 import { echoViews } from './echo/views';
 import { moleLogic } from './mole/logic';
 import { moleViews } from './mole/views';
+import { sauceLogic } from './sauce/logic';
+import { sauceViews } from './sauce/views';
+import { snackLogic } from './snack/logic';
+import { snackViews } from './snack/views';
 import { phishLogic } from './phish/logic';
 import { phishViews } from './phish/views';
 import { swatchLogic } from './swatch/logic';
@@ -33,8 +37,8 @@ export const GAMES: GameModule[] = [
   { logic: dialLogic, views: dialViews, accent: '#ffb703', icon: '🎛️', available: true },
   { logic: swatchLogic, views: swatchViews, accent: '#f15bb5', icon: '🎨', available: true },
   { logic: coverLogic, views: coverViews, accent: '#3ddc97', icon: '🗂️', available: true },
-  comingSoon('sauce', 'Hot Sauce', 'Bid on cups, and pray none of them is the hot one.', '🌶️', '#ff4d6d'),
-  comingSoon('snack', 'Snack Swap', 'Pick a snack, pass the rest. Build the best spread.', '🍱', '#ff8c42'),
+  { logic: sauceLogic, views: sauceViews, accent: '#ff4d6d', icon: '🌶️', available: true },
+  { logic: snackLogic, views: snackViews, accent: '#ff8c42', icon: '🍱', available: true },
   comingSoon('doodle', 'Doodle Relay', 'Draw it, guess it, draw the guess. Watch it go wrong.', '✏️', '#a3e635'),
   comingSoon('tumble', 'Tumble Steps', 'Flick dice down the stairs. Aim and power from your phone.', '🎲', '#4cc9f0'),
   { logic: phishLogic, views: phishViews, accent: '#ff4d6d', icon: '🎣', available: true },

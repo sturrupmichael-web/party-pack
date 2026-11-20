@@ -1,0 +1,11 @@
+{
+  "cards": [
+    { "id": "pizza", "name": "Pizza Slice", "emoji": "🍕", "count": 14, "rule": "4 slices make a whole pie: 12. Spare slices: 1 each." },
+    { "id": "taco", "name": "Taco", "emoji": "🌮", "count": 14, "rule": "2 each. Most tacos this round: +4." },
+    { "id": "fries", "name": "Fries", "emoji": "🍟", "count": 14, "rule": "1 each. Triple with Dip." },
+    { "id": "dip", "name": "Dip", "emoji": "🥣", "count": 6, "rule": "Makes up to 3 of your Fries worth 3." },
+    { "id": "pretzel", "name": "Pretzel", "emoji": "🥨", "count": 10, "rule": "Worth 1 per different snack you have this round." },
+    { "id": "pepper", "name": "Ghost Pepper", "emoji": "🌶️", "count": 6, "rule": "Fewer than 3: −2 each. 3 or more: +4 each!" },
+    { "id": "cookie", "name": "Cookie", "emoji": "🍪", "count": 10, "rule": "Saved for the end: 2 each. Biggest jar: +4." }
+  ]
+}

@@ -151,3 +151,26 @@ h2 { margin: .2em 0; }
 .gbtn span { grid-row: auto; font-size: 28px; }
 .gbtn small { display: none; }
 .gbtn b { font-size: .95em; }
+
+/* Hot Sauce */
+.hs-choice { font-size: 0; }
+.hs-choice span { font-size: 28px; }
+.hs-mine { text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.hs-mine > div { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; min-height: 40px; }
+.hs-mine small { color: var(--muted); }
+.choice:disabled { opacity: .35; }
+
+/* Snack Swap */
+.ss-phone { gap: 10px; }
+.ss-phone .prompt { margin: 0; text-align: center; color: var(--muted); font-weight: 700; }
+.ss-hand { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 8px; }
+.ss-hand.n1, .ss-hand.n2 { grid-template-columns: repeat(2, 1fr); }
+.ss-card { border: 3px solid var(--line); background: var(--bg2); color: inherit; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; min-height: 0; cursor: pointer; }
+.ss-card span { font-size: min(10vw, 7vh); line-height: 1.1; }
+.ss-card small { font-weight: 700; font-size: 12px; }
+.ss-card.on { border-color: var(--me); background: color-mix(in srgb, var(--me) 25%, var(--bg2)); transform: translateY(-3px); }
+.ss-rule { min-height: 44px; text-align: center; font-size: 15px; flex: none; }
+.ss-phone .btn { flex: none; }
+.ss-myspread { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; flex: none; }
+.ss-chip { font-size: 22px; background: rgba(255,255,255,.08); border-radius: 8px; padding: 1px 5px; }
+.ss-chip b { font-size: 13px; }

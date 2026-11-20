@@ -235,3 +235,53 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .cv-votes { position: absolute; bottom: 6px; right: 8px; display: flex; gap: 2px; }
 .cv-teams-intro { display: flex; gap: 40px; margin: 10px 0 20px; }
 .cv-teams-intro .cv-team { width: 380px; text-align: left; }
+
+/* Hot Sauce */
+.hs-screen { height: 100%; display: flex; flex-direction: column; gap: 18px; }
+.hs-rules { font-size: 26px; color: var(--muted); text-align: center; max-width: 1400px; margin: 0 auto; }
+.hs-banner { font-size: 44px; font-weight: 800; text-align: center; min-height: 64px; }
+.hs-bid { display: inline-block; background: #ff4d6d; color: #fff; padding: 0 18px; border-radius: 14px; }
+.hs-table { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 20px; align-content: center; max-height: 760px; width: 100%; margin: auto 0; }
+.hs-seat { background: var(--bg2); border: 4px solid var(--line); border-top: 12px solid var(--pc); border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 10px; transition: transform .2s, box-shadow .2s; min-height: 0; }
+.hs-seat.turn { border-color: var(--pc); box-shadow: 0 0 40px color-mix(in srgb, var(--pc) 50%, transparent); transform: translateY(-6px); }
+.hs-seat.out { opacity: .4; filter: grayscale(.8); }
+.hs-who { display: flex; align-items: center; gap: 12px; font-size: 30px; }
+.hs-who b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.hs-wins { font-size: 28px; }
+.hs-stack { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; align-content: center; min-height: 90px; }
+.hs-stack .muted { font-size: 26px; }
+.hs-stack .flip { animation: flip .5s both; display: inline-block; }
+.hs-seat small { font-size: 20px; }
+
+/* Snack Swap */
+.ss-screen { height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.ss-banner { font-size: 44px; font-weight: 900; text-align: center; }
+.ss-banner small { display: block; font-size: 26px; color: var(--muted); font-weight: 500; }
+.ss-main { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
+.ss-table { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 16px; min-height: 0; align-content: center; }
+.ss-seat { position: relative; background: var(--bg2); border: 4px solid var(--line); border-top: 12px solid var(--pc); border-radius: 22px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-height: 0; overflow: hidden; }
+.ss-seat.done { border-color: var(--pc); }
+.ss-who { display: flex; align-items: center; gap: 10px; font-size: 26px; }
+.ss-who b { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ss-who i { font-style: normal; color: var(--good); font-weight: 900; font-size: 32px; }
+.ss-jar { font-size: 22px; }
+.ss-spread { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+.ss-chip { font-size: 40px; background: rgba(255,255,255,.07); border-radius: 12px; padding: 2px 8px; display: inline-flex; align-items: center; }
+.ss-chip b { font-size: 22px; margin-left: 2px; }
+.ss-chip.fresh { box-shadow: 0 0 0 3px var(--pc); }
+.ss-fresh { position: absolute; right: 14px; top: 70px; font-size: 90px; animation: pop .45s both; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+.ss-legend { display: flex; flex-direction: column; gap: 8px; background: var(--bg2); border-radius: 22px; padding: 16px; }
+.ss-legend div { display: grid; grid-template-columns: 52px 1fr; column-gap: 8px; align-items: center; }
+.ss-legend span { font-size: 40px; grid-row: span 2; }
+.ss-legend b { font-size: 22px; }
+.ss-legend small { font-size: 17px; color: var(--muted); line-height: 1.2; }
+.ss-scores { width: 100%; border-collapse: collapse; font-size: 32px; }
+.ss-scores th { color: var(--muted); font-size: 24px; font-weight: 700; padding: 6px 14px; }
+.ss-scores td { padding: 8px 14px; text-align: center; border-top: 2px solid var(--line); }
+.ss-scores .l { text-align: left; }
+.ss-scores .nm { display: inline-flex; align-items: center; gap: 12px; }
+.ss-rate { font-size: 28px; color: var(--muted); font-family: inherit; margin-left: 12px; }
+.ss-scores .big { font-size: 44px; font-weight: 900; color: var(--gold); }
+.ss-scores .parts span { margin-right: 18px; font-size: 28px; white-space: nowrap; }
+.ss-scores .parts .neg { color: var(--bad); }
+.center { text-align: center; }

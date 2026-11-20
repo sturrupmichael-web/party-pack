@@ -20,8 +20,8 @@ Served at **https://michaelsturrup.com/party-pack/**:
 | 🎛️ **Dial In**: the reader gives a clue for a hidden spot on a spectrum; everyone drags a dial on their phone. | Spectrum guessing | 2–8 | ✅ |
 | 🎨 **Swatch Watch**: the cue-giver picks one of four secret colours and clues it in one word, then two. Everyone marks the 24×12 grid on their phone (tap the grid, fine-tune in the zoom). On it 300, next to it 200, two away 100; the cue-giver gets 100 per mark within one cell. | Colour-grid clues | 3–8 | ✅ |
 | 🗂️ **Cover Story**: two teams, 25 words. Code-givers see the key on their phone and give a word + number; their team votes on phones, and most of the team agreeing reveals a word. Find all yours first; the 🔥 Burn word loses on the spot. Winners 1000, plus 50 per word your team found. | Team word association | 4–8 | ✅ |
-| 🌶️ Hot Sauce: bid on how many cups you can taste without hitting the hot one | Bluff and bid | | Chunk 3 |
-| 🍱 Snack Swap: everyone picks a card and passes the rest | Simultaneous drafting | | Chunk 3 |
+| 🌶️ **Hot Sauce**: everyone owns 3 mild cups and 1 hot. Stack them face down on your turn, or bid how many cups you can taste. Bids go round until all but one pass. The taster drinks their own stack first, then picks others' top cups. Make it for a win (500; two wins takes the game for +1000). Hit a hot one and lose a cup for good. | Bluff and bid | 3–8 | ✅ |
+| 🍱 **Snack Swap**: everyone secretly keeps one snack from their hand and passes the rest, three rounds. 🍕 4 slices = 12, 🌮 most tacos +4, 🍟 tripled by 🥣 dip, 🥨 worth your variety, 🌶️ only pays off at 3+, 🍪 saved for the end. Snack points ×50 go to the scoreboard. Cards and rules live in `src/games/snack/content.json`. | Simultaneous drafting | 3–8 | ✅ |
 | ✏️ Doodle Relay: draw, guess, draw the guess | Draw-and-guess chain | | Chunk 4 |
 | 🎲 Tumble Steps: flick dice down a stepped board, aim and power from your phone | Dexterity / physics | | Chunk 4 |
 | 🎣 Phish or Legit (bonus): spot the scam email, link or text | Speed quiz | 1–8 | ✅ |
