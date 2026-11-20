@@ -285,3 +285,40 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .ss-scores .parts span { margin-right: 18px; font-size: 28px; white-space: nowrap; }
 .ss-scores .parts .neg { color: var(--bad); }
 .center { text-align: center; }
+
+/* Doodle Relay */
+.dr-screen { height: 100%; display: flex; flex-direction: column; gap: 14px; }
+.dr-play { align-items: center; justify-content: center; text-align: center; }
+.dr-play .small-rules { max-width: 1300px; color: var(--muted); }
+.dr-who { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px 34px; font-size: 30px; margin-top: 20px; }
+.dr-who .pchip i { font-style: normal; font-weight: 900; }
+.dr-who .pchip.done i { color: var(--good); }
+.dr-who .pchip.wait { opacity: .55; }
+.dr-head .title-m { display: flex; align-items: center; gap: 14px; font-size: 46px; }
+.dr-prompt { color: var(--gold); }
+.dr-chain { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 18px; }
+.dr-chain.n2, .dr-chain.n3 { grid-template-rows: minmax(0, 1fr); }
+.dr-chain.n4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dr-card { position: relative; background: var(--bg2); border-radius: 20px; padding: 10px 10px 46px; display: flex; align-items: center; justify-content: center; min-height: 0; animation: pop .45s both; }
+.dr-card .ink { width: 100%; height: 100%; border-radius: 12px; display: block; }
+.dr-guess { font-size: 46px; font-weight: 900; text-align: center; padding: 0 20px; overflow-wrap: anywhere; }
+.dr-guess.match { color: var(--good); }
+.dr-guess i { font-style: normal; margin-left: 10px; }
+.dr-by { position: absolute; left: 14px; bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 700; color: var(--pc); }
+.dr-wait { grid-column: 1 / -1; display: grid; place-items: center; font-size: 40px; color: var(--muted); }
+.dr-foot { min-height: 50px; text-align: center; font-size: 34px; font-weight: 800; }
+
+/* Tumble Steps */
+.td-screen { height: 100%; display: flex; flex-direction: column; gap: 14px; }
+.td-banner { font-size: 44px; font-weight: 800; text-align: center; }
+.td-rules { margin: 0; text-align: center; font-size: 24px; color: var(--muted); }
+.td-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; }
+.td-board { height: 100%; max-width: 100%; border-radius: 22px; box-shadow: 0 0 0 6px var(--line); }
+.td-die.fresh rect { stroke: #fff; }
+.td-strip { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.td-chip { display: grid; grid-template-columns: auto auto auto; grid-template-rows: auto auto; column-gap: 10px; align-items: center; background: var(--bg2); border-radius: 18px; padding: 8px 16px; border: 4px solid transparent; }
+.td-chip > svg { grid-row: span 2; }
+.td-chip b { font-size: 24px; color: var(--pc); }
+.td-chip em { font-style: normal; font-weight: 900; font-size: 34px; grid-row: span 2; }
+.td-chip small { color: var(--muted); font-size: 16px; }
+.td-chip.turn { border-color: var(--pc); }

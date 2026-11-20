@@ -15,21 +15,14 @@ import { sauceLogic } from './sauce/logic';
 import { sauceViews } from './sauce/views';
 import { snackLogic } from './snack/logic';
 import { snackViews } from './snack/views';
+import { doodleLogic } from './doodle/logic';
+import { doodleViews } from './doodle/views';
+import { tumbleLogic } from './tumble/logic';
+import { tumbleViews } from './tumble/views';
 import { phishLogic } from './phish/logic';
 import { phishViews } from './phish/views';
 import { swatchLogic } from './swatch/logic';
 import { swatchViews } from './swatch/views';
-
-/** Placeholder for games that arrive in a later chunk. */
-function comingSoon(id: string, title: string, tagline: string, icon: string, accent: string): GameModule {
-  return {
-    logic: { id, title, tagline, minPlayers: 3, maxPlayers: 8 } as GameModule['logic'],
-    views: null as unknown as GameModule['views'],
-    accent,
-    icon,
-    available: false,
-  };
-}
 
 export const GAMES: GameModule[] = [
   { logic: moleLogic, views: moleViews, accent: '#b388ff', icon: '🕵️', available: true },
@@ -39,8 +32,8 @@ export const GAMES: GameModule[] = [
   { logic: coverLogic, views: coverViews, accent: '#3ddc97', icon: '🗂️', available: true },
   { logic: sauceLogic, views: sauceViews, accent: '#ff4d6d', icon: '🌶️', available: true },
   { logic: snackLogic, views: snackViews, accent: '#ff8c42', icon: '🍱', available: true },
-  comingSoon('doodle', 'Doodle Relay', 'Draw it, guess it, draw the guess. Watch it go wrong.', '✏️', '#a3e635'),
-  comingSoon('tumble', 'Tumble Steps', 'Flick dice down the stairs. Aim and power from your phone.', '🎲', '#4cc9f0'),
+  { logic: doodleLogic, views: doodleViews, accent: '#a3e635', icon: '✏️', available: true },
+  { logic: tumbleLogic, views: tumbleViews, accent: '#4cc9f0', icon: '🎲', available: true },
   { logic: phishLogic, views: phishViews, accent: '#ff4d6d', icon: '🎣', available: true },
 ];
 
