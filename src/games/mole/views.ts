@@ -14,7 +14,7 @@ const chip = (players: Player[], key: string | null | undefined, size = 64) => {
 
 const OUTCOME: Record<string, (m: string, g: string) => string> = {
   caught: (m) => `${m} was caught, and missed the place. The crew wins!`,
-  'mole-missed': (m, g) => `${m} guessed ${g}. Wrong! The crew wins!`,
+  'mole-missed': (m, g) => (g ? `${m} guessed ${g}. Wrong! The crew wins!` : `${m} didn't name a place in time. The crew wins!`),
   'wrong-accuse': (m) => `You voted out the wrong person! ${m} wins.`,
   'no-majority': (m) => `No clear vote, so ${m} slips away and wins.`,
   'mole-guessed': (m, g) => `${m} worked out it was ${g}. The mole wins!`,
@@ -40,7 +40,7 @@ export const moleViews: GameViews = {
           ${p.round === 0 ? `<ol class="rules">
             <li>Check your phone in secret: everyone gets the same <b>place</b>, except the <b>mole</b>.</li>
             <li>Take turns asking each other questions out loud. Be vague enough to fool the mole.</li>
-            <li>Anyone can <b>accuse</b> once a round. The mole can <b>guess the place</b> at any time.</li>
+            <li>Anyone can <b>accuse</b> once a round. The mole can <b>guess the place</b> at any time. Once everyone has accused, the mole gets one guess to win.</li>
           </ol>` : '<p class="rules">New place, new mole. Check your phone!</p>'}
         </div>`;
         return;
@@ -77,7 +77,13 @@ export const moleViews: GameViews = {
       }
       if (p.phase === 'guess') {
         c.sfx.reveal();
-        el.innerHTML = `<div class="intro">
+        el.innerHTML = p.lastChance
+          ? `<div class="intro">
+          <div class="kicker">No accusations left</div>
+          <h1 class="title-l">The mole gets one guess</h1>
+          <p class="rules">Everyone has used their accusation and the mole is still hidden. If the mole names the place, the mole wins. If not, the crew wins.</p>
+        </div>`
+          : `<div class="intro">
           <div class="kicker">Caught!</div>
           <h1 class="title-l">The mole is… someone!</h1>
           <p class="rules">The mole gets one last chance: if they can name the place, they still win.</p>
@@ -193,7 +199,7 @@ function phoneView(): GameViews['phone'] {
         } });
       }
       if (p.phase === 'guess') {
-        if (pr.mole) return pickList(el, { title: 'Caught! Name the place to still win', items: (p.board as string[]).map((b) => ({ id: b, label: b })), cols: 2, onPick: (id) => send({ t: 'guess', place: id }) });
+        if (pr.mole) return pickList(el, { title: p.lastChance ? 'No accusations left: name the place to win' : 'Caught! Name the place to still win', items: (p.board as string[]).map((b) => ({ id: b, label: b })), cols: 2, onPick: (id) => send({ t: 'guess', place: id }) });
         return void (el.innerHTML = lookAtTv('The mole is guessing…'));
       }
       if (p.phase === 'reveal') {

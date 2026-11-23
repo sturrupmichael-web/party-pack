@@ -4,6 +4,8 @@
  * questions out loud. Anyone can accuse once per round (everyone else must
  * agree), the mole can try to name the place at any time, and when the clock
  * runs out everyone votes. A caught mole still gets one guess at the place.
+ * If every player has used their accusation and the mole is still hidden, the
+ * round ends there and the mole gets one guess: right wins, wrong loses.
  */
 import type { GameCtx, GameLogic, Seat, TimerInfo, Who } from '../../core/game';
 import { displayMs, inputDeadline } from '../../core/game';
@@ -51,6 +53,8 @@ export interface MoleState {
   /** Who started the successful accusation (for the bonus). */
   accuser: string | null;
   moleGuess: string | null;
+  /** Everyone has used their accusation: the mole's guess decides the round. */
+  lastChance: boolean;
   outcome: Outcome | null;
   points: Record<string, number>;
   last: Record<string, number>;
@@ -74,6 +78,7 @@ function startRound(s: MoleState, ctx: GameCtx): void {
   s.finalVotes = {};
   s.accuser = null;
   s.moleGuess = null;
+  s.lastChance = false;
   s.outcome = null;
   s.last = {};
 }
@@ -118,7 +123,14 @@ function resolveAccuse(s: MoleState, ctx: GameCtx, active: string[]): void {
   const voters = active.filter((k) => k !== a.target && isSeat(s, k));
   const yes = voters.length > 0 && voters.every((k) => a.votes[k] === true);
   s.accuse = null;
-  if (!yes) return beginAsk(s, ctx, s.askLeft);
+  if (!yes) {
+    // Nobody has an accusation left: the questioning is over, and the mole gets one guess.
+    if (s.seats.every((p) => s.usedAccuse.includes(p.key))) {
+      s.lastChance = true;
+      return moleCaught(s, ctx);
+    }
+    return beginAsk(s, ctx, s.askLeft);
+  }
   s.accuser = a.by;
   if (a.target === mole(s)) moleCaught(s, ctx);
   else finish(s, 'wrong-accuse', ctx);
@@ -175,6 +187,7 @@ export const moleLogic: GameLogic<MoleState> = {
       finalVotes: {},
       accuser: null,
       moleGuess: null,
+      lastChance: false,
       outcome: null,
       points: Object.fromEntries(players.map((p) => [p.key, 0])),
       last: {},
@@ -210,7 +223,7 @@ export const moleLogic: GameLogic<MoleState> = {
         return true;
       case 'guess': {
         if (!amMole || (s.phase !== 'ask' && s.phase !== 'guess') || !d.place || !s.board.includes(d.place)) return false;
-        const caught = s.phase === 'guess';
+        const caught = s.phase === 'guess' && !s.lastChance;
         s.moleGuess = d.place;
         const right = d.place === place(s);
         finish(s, right ? (caught ? 'caught-guessed' : 'mole-guessed') : caught ? 'caught' : 'mole-missed', ctx);
@@ -240,7 +253,7 @@ export const moleLogic: GameLogic<MoleState> = {
         if (due) return resolveFinal(s, ctx), true;
         return false;
       case 'guess':
-        if (due) return finish(s, 'caught', ctx), true;
+        if (due) return finish(s, s.lastChance ? 'mole-missed' : 'caught', ctx), true;
         return false;
       case 'reveal':
         if (ctx.now >= s.stepEnds) {
@@ -263,7 +276,7 @@ export const moleLogic: GameLogic<MoleState> = {
       s.timer = inputDeadline(45_000, ctx);
     } else if (s.phase === 'accuse' && s.accuse) resolveAccuse(s, ctx, Object.keys(s.accuse.votes));
     else if (s.phase === 'final') resolveFinal(s, ctx);
-    else if (s.phase === 'guess') finish(s, 'caught', ctx);
+    else if (s.phase === 'guess') finish(s, s.lastChance ? 'mole-missed' : 'caught', ctx);
     else if (s.phase === 'reveal') s.stepEnds = 0;
   },
 
@@ -286,6 +299,7 @@ export const moleLogic: GameLogic<MoleState> = {
       place: revealed ? place(s) : null,
       mole: revealed ? mole(s) : null,
       moleGuess: revealed ? s.moleGuess : null,
+      lastChance: s.lastChance,
       outcome: revealed ? s.outcome : null,
       finalVotes: revealed ? s.finalVotes : null,
       last: revealed ? s.last : null,

@@ -28,6 +28,30 @@ describe('content', () => {
 });
 
 describe('Mole Hunt', () => {
+  it('when every accusation is used up, the mole gets one guess to win', () => {
+    for (const right of [true, false]) {
+      const h = harness(M);
+      h.wait(10_000); // past the briefing
+      expect(h.s.phase).toBe('ask');
+      const mole = h.s.moles[0];
+      const crew = seats.map((p) => p.key).filter((k) => k !== mole);
+      // Everyone accuses someone innocent (or the mole is accused and cleared), and someone says no each time.
+      for (const p of seats) {
+        const target = seats.find((q) => q.key !== p.key && q.key !== mole)!.key;
+        expect(h.input(p.key, { t: 'accuse', target, round: 0 })).toBe(true);
+        const voter = seats.find((q) => q.key !== p.key && q.key !== target)!.key;
+        h.input(voter, { t: 'vote', yes: false, round: 0 });
+      }
+      expect(h.s.phase).toBe('guess');
+      expect(h.s.lastChance).toBe(true);
+      expect((M.publicState(h.s, h.ctx()) as any).lastChance).toBe(true);
+      const place = h.s.board[h.s.plan[0]];
+      h.input(mole, { t: 'guess', place: right ? place : h.s.board.find((b: string) => b !== place), round: 0 });
+      expect(h.s.outcome).toBe(right ? 'mole-guessed' : 'mole-missed');
+      expect(h.s.last[right ? mole : crew[0]]).toBeGreaterThan(0);
+    }
+  });
+
   it('only the mole lacks the place, and the audience is in on it', () => {
     const h = harness(M);
     const mole = h.s.moles[0];
