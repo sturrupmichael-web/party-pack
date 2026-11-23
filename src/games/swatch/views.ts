@@ -151,16 +151,17 @@ function phoneView(): GameViews['phone'] {
         if (mine.length >= need || sent === here) return void (el.innerHTML = sentScreen('Marked'));
         const zoom: string[] = [];
         const [sr, sc] = rc(sel);
-        const r0 = Math.min(ROWS - 5, Math.max(0, sr - 2));
+        // The tall grid leaves room for a 3-row zoom.
+        const r0 = Math.min(ROWS - 3, Math.max(0, sr - 1));
         const c0 = Math.min(COLS - 5, Math.max(0, sc - 2));
-        for (let r = r0; r < r0 + 5; r++)
+        for (let r = r0; r < r0 + 3; r++)
           for (let cc = c0; cc < c0 + 5; cc++) {
             const i = idx(r, cc);
             zoom.push(`<button data-z="${i}" class="${i === sel ? 'on' : ''} ${mine.includes(i) ? 'mine' : ''}" style="background:${cellColor(r, cc)}"></button>`);
           }
         el.innerHTML = `<div class="screen sw-phone">
           <div class="clue-mid small">${clueLine(p.clues)}</div>
-          ${gridHtml({ cls: 'mini', marks: Object.fromEntries(mine.map((m) => [m, '<b class="mk"></b>'])) })}
+          ${gridHtml({ cls: 'mini tall', marks: Object.fromEntries(mine.map((m) => [m, '<b class="mk"></b>'])) })}
           <div class="sw-zoom">${zoom.join('')}</div>
           <button class="btn primary huge" data-lock ${mine.includes(sel) ? 'disabled' : ''}>${mine.includes(sel) ? `${cellName(sel)} is marked: pick another` : `Mark ${cellName(sel)}`}</button>
         </div>`;

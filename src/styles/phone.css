@@ -112,7 +112,11 @@ h2 { margin: .2em 0; }
 .sw.mini .sw-grid i { aspect-ratio: 1; border-radius: 2px; position: relative; }
 .sw.mini .sw-grid i.sel { outline: 3px solid #fff; z-index: 2; }
 .sw.mini .mk { position: absolute; inset: 20%; border-radius: 50%; background: #120c2c; border: 2px solid #fff; }
-.sw-zoom { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 4px; width: min(100%, 260px); margin: 0 auto; flex: 1; min-height: 0; max-height: 260px; aspect-ratio: 1; }
+.sw-zoom { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 4px; width: min(100%, 260px); margin: 0 auto; flex: 1 1 auto; min-height: 60px; max-height: 156px; aspect-ratio: 5 / 3; }
+/* Guessing: the grid at twice the height, so cells are easier to hit. */
+.sw.mini.tall { flex: none; }
+.sw.mini.tall .sw-grid i { aspect-ratio: 1 / 2; }
+.sw.mini.tall .mk { inset: 30% 15%; }
 .sw-zoom button { border: 0; border-radius: 8px; cursor: pointer; position: relative; padding: 0; min-width: 0; min-height: 0; overflow: hidden; }
 .sw-zoom button.on { outline: 5px solid #fff; outline-offset: -1px; box-shadow: 0 0 0 7px #120c2c; z-index: 1; }
 /* Your mark: a small ring pinned inside the cell (Safari sized a block ::after against the page). */
