@@ -322,7 +322,7 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .td-die .bob { transform-box: fill-box; transform-origin: center; }
 .td-die .bob.drop { animation: td-drop .38s ease-out; }
 @keyframes td-drop { 0% { transform: scale(1.35) translateY(-14px); } 55% { transform: scale(.88, 1.08); } 100% { transform: none; } }
-.td-die.fresh .spin > rect:first-child { stroke: #fff; stroke-width: 6; }
+.td-die.fresh .cube { filter: drop-shadow(0 0 6px #fff); }
 .td-die { transition: opacity .3s; }
 .td-die.fall .bob { animation: td-fall .8s ease-in forwards; }
 .td-die.fall .sh, .td-die.fade { opacity: 0; }

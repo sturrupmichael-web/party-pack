@@ -145,3 +145,36 @@ describe('Tumble Steps', () => {
     expect(h.s.roundScores).toHaveLength(ROUNDS);
   });
 });
+
+describe('Tumble Steps rolling and the ×4 pockets', () => {
+  it('only the pockets on the last step pay ×4; the strips between pay ×2', async () => {
+    const { multAt, EDGES: E, CY: cy, halfWidth: hw } = await import('../src/games/tumble/physics');
+    const x = (E[3] + E[4]) / 2;
+    expect(multAt(x, cy)).toBe(4);
+    expect(multAt(x, cy + 0.36 * hw(x))).toBe(2);
+    expect(multAt(x, cy - 0.7 * hw(x))).toBe(4);
+    expect(multAt((E[2] + E[3]) / 2, cy + 0.36 * hw(x))).toBe(3);
+    expect(multAt(E[4] + 5, cy)).toBe(0);
+  });
+
+  it('a die tips one face per roll length, and its faces stay a real die', async () => {
+    const P = await import('../src/games/tumble/physics');
+    const d: any = { face: 1, south: 3, east: P.eastOf(1, 3) };
+    P.tip(d, '+x');
+    P.tip(d, '+x');
+    P.tip(d, '+x');
+    P.tip(d, '+x');
+    expect(d.face).toBe(1);
+    for (const dir of ['+y', '-x', '+y', '-y', '+x'] as const) {
+      P.tip(d, dir);
+      expect(new Set([d.face, d.east, d.south, 7 - d.face, 7 - d.east, 7 - d.south]).size).toBe(6);
+    }
+    // The final face comes from the roll: the same throw lands the same way.
+    const a = { id: 1, owner: 'a', face: 1, x: 0, y: 0, gone: false };
+    const b = { id: 1, owner: 'a', face: 1, x: 0, y: 0, gone: false };
+    P.simulate([], a, { aim: 0.1, power: 0.6, lane: 0.4 }, mulberry32(9));
+    P.simulate([], b, { aim: 0.1, power: 0.6, lane: 0.4 }, mulberry32(9));
+    expect(a.face).toBe(b.face);
+    expect(a.x).toBe(b.x);
+  });
+});
