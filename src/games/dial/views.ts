@@ -27,10 +27,10 @@ export const dialViews: GameViews = {
         c.sfx.whoosh();
         el.innerHTML = `<div class="dial-screen">
           <div class="dial-side">
-            <div class="kicker">Round ${p.round + 1} of ${p.rounds}</div>
+            <div class="kicker">Round ${p.round + 1} of ${p.rounds} · first to ${p.goal}</div>
             <h1 class="title-l">${chip(P, p.reader, 80)} is reading</h1>
             ${p.round === 0
-              ? `<ol class="rules small-rules"><li>The reader sees a secret spot on the dial and gives a clue for it.</li><li>Everyone else drags the dial on their phone.</li><li>Bullseye <b>400</b>, close <b>300</b>, near <b>200</b>. The reader gets the average.</li></ol>`
+              ? `<ol class="rules small-rules"><li>The reader sees a secret spot on the dial and gives a clue for it.</li><li>Everyone else drags the dial on their phone.</li><li>Bullseye <b>400</b>, close <b>300</b>, near <b>200</b>. The reader gets the average.</li><li>First to <b>${p.goal}</b> points, or the most after ${p.rounds} rounds, wins.</li></ol>`
               : '<p class="rules">Thinking of a clue…</p>'}
           </div>
           ${tvDial(p.spectrum, dialSvg({ left: p.spectrum[0], right: p.spectrum[1], shut: true }))}

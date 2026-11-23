@@ -2,7 +2,8 @@
  * Dial In: each round one Reader sees a spectrum (say, "Mild ↔ Spicy") and a
  * secret target on it, and gives a clue they think lands there ("salsa").
  * Everyone else drags a dial on their phone. Closer guesses score more, and
- * the Reader scores the average of what the guessers got.
+ * the Reader scores the average of what the guessers got. Ten rounds, or
+ * first to 3500 points.
  */
 import type { GameCtx, GameLogic, Seat, TimerInfo, Who } from '../../core/game';
 import { displayMs, inputDeadline } from '../../core/game';
@@ -11,6 +12,9 @@ import { shuffle } from '../../core/rng';
 import content from './content.json';
 
 export const SPECTRUMS = content.spectrums as Array<[string, string]>;
+/** The game ends after this many rounds, or as soon as someone reaches WIN_POINTS. */
+export const MAX_ROUNDS = 10;
+export const WIN_POINTS = 3500;
 /** [half width, points], tightest last. Matches DIAL_BANDS in ui/components.ts. */
 export const BANDS: Array<[number, number]> = [
   [12, 200],
@@ -71,8 +75,10 @@ function reveal(s: DialState, ctx: GameCtx): void {
   s.stepEnds = ctx.now + displayMs(10_000, ctx);
 }
 
+export const leader = (s: DialState) => Math.max(0, ...Object.values(s.points));
+
 function next(s: DialState, ctx: GameCtx): void {
-  if (s.round + 1 >= s.readers.length) s.phase = 'done';
+  if (s.round + 1 >= s.readers.length || leader(s) >= WIN_POINTS) s.phase = 'done';
   else {
     s.round++;
     startRound(s, ctx);
@@ -88,7 +94,7 @@ export const dialLogic: GameLogic<DialState> = {
 
   setup(players, ctx) {
     const order = shuffle(players, ctx.rand).map((p) => p.key);
-    const rounds = Math.min(8, Math.max(4, players.length));
+    const rounds = MAX_ROUNDS;
     const s: DialState = {
       seats: players,
       readers: Array.from({ length: rounds }, (_, i) => order[i % order.length]),
@@ -163,6 +169,7 @@ export const dialLogic: GameLogic<DialState> = {
       phase: s.phase,
       round: s.round,
       rounds: s.readers.length,
+      goal: WIN_POINTS,
       timer: s.timer,
       reader: reader(s),
       seats: s.seats.map((p) => p.key),

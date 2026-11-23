@@ -17,7 +17,7 @@ Served at **https://michaelsturrup.com/party-pack/**:
 | --- | --- | --- | --- |
 | 🕵️ **Mole Hunt**: everyone gets the same secret place except the mole. Ask questions out loud, accuse (it takes everyone to agree), or as the mole, name the place. | Hidden-role deduction | 3–8 | ✅ |
 | 🔊 **Echo Chamber**: everyone but the guesser writes a one-word clue for a secret word; matching clues cancel out. | Co-op word clues | 3–8 | ✅ |
-| 🎛️ **Dial In**: the reader gives a clue for a hidden spot on a spectrum; everyone drags a dial on their phone. | Spectrum guessing | 2–8 | ✅ |
+| 🎛️ **Dial In**: the reader gives a clue for a hidden spot on a spectrum; everyone drags a dial on their phone. Ten rounds, or first to 3500 points. | Spectrum guessing | 2–8 | ✅ |
 | 🎨 **Swatch Watch**: the cue-giver picks one of four secret colours and clues it in one word, then two. Everyone marks the 24×12 grid on their phone (tap the grid, fine-tune in the zoom). On it 300, next to it 200, two away 100; the cue-giver gets 100 per mark within one cell. | Colour-grid clues | 3–8 | ✅ |
 | 🗂️ **Cover Story**: two teams, 25 words. Code-givers see the key on their phone and give a word + number; their team votes on phones, and most of the team agreeing reveals a word. Find all yours first; the 🔥 Burn word loses on the spot. Winners 1000, plus 50 per word your team found. | Team word association | 4–8 | ✅ |
 | 🌶️ **Hot Sauce**: everyone owns 3 mild cups and 1 hot. Stack them face down on your turn, or bid how many cups you can taste. Bids go round until all but one pass. The taster drinks their own stack first, then picks others' top cups. Make it for a win (500; two wins takes the game for +1000). Hit a hot one and lose a cup for good. | Bluff and bid | 3–8 | ✅ |

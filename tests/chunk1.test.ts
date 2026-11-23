@@ -169,6 +169,22 @@ describe('Dial In', () => {
     expect(h.s.last[reader]).toBe(Math.round((400 + 300 + 0) / 3));
   });
 
+  it('ends after 10 rounds, or once someone reaches 3500', () => {
+    expect(SPECTRUMS.length).toBeGreaterThanOrEqual(60);
+    expect(new Set(SPECTRUMS.map((x) => x.join('|'))).size).toBe(SPECTRUMS.length);
+    const h = harness(D);
+    expect(h.s.readers).toHaveLength(10);
+    let guard = 0;
+    while (h.s.phase !== 'done' && guard++ < 200) h.wait(80_000);
+    expect(h.s.round).toBe(9);
+    const g = harness(D);
+    g.s.points[seats[0].key] = 3500;
+    g.s.phase = 'reveal';
+    g.s.stepEnds = 0;
+    g.wait(1);
+    expect(g.s.phase).toBe('done');
+  });
+
   it('a reader who never clues skips the round', () => {
     const h = harness(D);
     h.wait(80_000);
