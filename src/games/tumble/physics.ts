@@ -4,6 +4,9 @@
  * as they go, then the drop-off. The last step is broken up: only three
  * pockets across it pay ×4, the strips between them pay ×2.
  *
+ * Dice only ever go down: each step's front edge is a wall for the dice below
+ * it, so a bounce or a knock can never carry a die back up a level.
+ *
  * Dice really roll: each die keeps which face is up, toward the far end and
  * toward the side, and tips over an edge for every die-width it travels, so
  * the face it ends on comes from how it moved. Rolling dice lose speed faster
@@ -53,6 +56,11 @@ const SETTLE_DRAG = 900;
 const SETTLE_SPEED = 320;
 /** Distance a die travels per tip over an edge. */
 export const ROLL_LEN = 2 * R * 1.2;
+/** Dice touch a little before their centres are two radii apart (corners). */
+const HIT_DIST = 2 * R + 6;
+const RESTITUTION = 0.95;
+/** Extra push for the die that gets hit. */
+const KNOCK = 1.15;
 const DT = 1 / 120;
 const FRAME_EVERY = 4; // 30 fps keyframes
 
@@ -159,6 +167,18 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
   Object.assign(thrown, randomPose(rand));
   for (const d of dice) ensurePose(d, rand);
   const roll = all.map(() => ({ x: 0, y: 0 }));
+  /** The lowest level each die has reached; it can't climb back above it. */
+  const floor = all.map((d) => (d === thrown ? -1 : stepAt(d.x)));
+  const keepDown = (i: number) => {
+    const d = all[i];
+    const f = floor[i];
+    if (f < 0 || d.gone) return;
+    const wall = EDGES[f];
+    if (d.x < wall) {
+      d.x = wall;
+      if (v[i].x < 0) v[i].x = -v[i].x * 0.45; // bounce off the riser
+    }
+  };
   v[all.length - 1] = { x: Math.cos(ang) * speed, y: Math.sin(ang) * speed };
   const frames: Frame[] = [];
   const snap = () => frames.push(all.map((d) => [Math.round(d.x), Math.round(d.y), d.face, d.gone ? 1 : 0, d.east ?? 0, d.south ?? 0]));
@@ -191,6 +211,8 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
       v[i].x *= k;
       v[i].y *= k;
       const after = stepAt(d.x);
+      if (after > floor[i]) floor[i] = Math.min(after, 3);
+      keepDown(i);
       if (after !== before && after > before) {
         if (after === 4) {
           d.gone = true;
@@ -240,8 +262,9 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
       }
       // The back wall of the launch pad.
       if (d.x < R) ((d.x = R), (v[i].x = Math.abs(v[i].x) * 0.5));
+      keepDown(i);
     }
-    // Collisions (equal masses, a bit of energy lost).
+    // Collisions between dice.
     for (let i = 0; i < all.length; i++)
       for (let j = i + 1; j < all.length; j++) {
         const a = all[i];
@@ -250,21 +273,32 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const dist = Math.hypot(dx, dy);
-        if (dist >= 2 * R || dist === 0) continue;
+        if (dist >= HIT_DIST || dist === 0) continue;
         const nx = dx / dist;
         const ny = dy / dist;
-        const overlap = 2 * R - dist;
+        const overlap = HIT_DIST - dist;
         a.x -= (nx * overlap) / 2;
         a.y -= (ny * overlap) / 2;
         b.x += (nx * overlap) / 2;
         b.y += (ny * overlap) / 2;
+        keepDown(i);
+        keepDown(j);
         const rel = (v[i].x - v[j].x) * nx + (v[i].y - v[j].y) * ny;
         if (rel <= 0) continue;
-        const imp = rel * 0.9;
-        v[i].x -= imp * nx;
-        v[i].y -= imp * ny;
-        v[j].x += imp * nx;
-        v[j].y += imp * ny;
+        // Hard dice clack: nearly elastic, and the die that's hit gets a
+        // little extra shove (dice bounce off corners, not like pucks).
+        const imp = (rel * (1 + RESTITUTION)) / 2;
+        const iHit = Math.hypot(v[i].x, v[i].y) < Math.hypot(v[j].x, v[j].y);
+        v[i].x -= imp * nx * (iHit ? KNOCK : 1);
+        v[i].y -= imp * ny * (iHit ? KNOCK : 1);
+        v[j].x += imp * nx * (iHit ? 1 : KNOCK);
+        v[j].y += imp * ny * (iHit ? 1 : KNOCK);
+        // A hard hit knocks both dice over.
+        if (rel > 260) {
+          const dir = (n: number, m: number) => (Math.abs(n) > Math.abs(m) ? (n > 0 ? '+x' : '-x') : m > 0 ? '+y' : '-y');
+          tip(b, dir(nx, ny));
+          tip(a, dir(-nx, -ny));
+        }
         hits++;
         moving = true;
       }

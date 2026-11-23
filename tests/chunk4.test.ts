@@ -178,3 +178,26 @@ describe('Tumble Steps rolling and the ×4 pockets', () => {
     expect(a.x).toBe(b.x);
   });
 });
+
+describe('Tumble Steps dice never climb back up', () => {
+  it('no die ever ends a throw on a higher step than it reached', async () => {
+    const P = await import('../src/games/tumble/physics');
+    for (let seed = 1; seed <= 60; seed++) {
+      const r = mulberry32(seed);
+      const board = Array.from({ length: 6 }, (_, k) => ({ id: k + 1, owner: 'b', face: 3, x: 320 + r() * 1050, y: P.CY + (r() - 0.5) * 300, gone: false }));
+      const before = board.map((d) => P.stepAt(d.x));
+      const d = { id: 99, owner: 'a', face: 1, x: 0, y: 0, gone: false };
+      const sim = P.simulate(board, d, { aim: (r() - 0.5) * 1.6, power: 0.4 + r() * 0.6, lane: r() }, mulberry32(seed));
+      board.forEach((b, i) => !b.gone && expect(P.stepAt(b.x)).toBeGreaterThanOrEqual(before[i]));
+      // And frame by frame, each die's step never decreases once it's on the board.
+      const low = sim.frames[0].map((f) => P.stepAt(f[0]));
+      for (const fr of sim.frames)
+        fr.forEach((f, i) => {
+          if (f[3]) return;
+          const st = P.stepAt(f[0]);
+          if (low[i] >= 0) expect(st).toBeGreaterThanOrEqual(low[i]);
+          low[i] = Math.max(low[i], Math.min(st, 3));
+        });
+    }
+  });
+});
