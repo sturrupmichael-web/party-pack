@@ -22,7 +22,8 @@ describe('content', () => {
   it('has plenty of it, and every place has 6 roles', () => {
     expect(PLACES.length).toBeGreaterThanOrEqual(30);
     for (const p of PLACES) expect(p.roles).toHaveLength(6);
-    expect(WORDS.length).toBeGreaterThanOrEqual(100);
+    expect(WORDS.length).toBe(250);
+    expect(new Set(WORDS).size).toBe(WORDS.length);
     expect(SPECTRUMS.length).toBeGreaterThanOrEqual(30);
   });
 });

@@ -104,7 +104,34 @@ fsBtn.addEventListener('click', () => {
   if (document.fullscreenElement) void document.exitFullscreen();
   else void document.documentElement.requestFullscreen?.().catch(() => {});
 });
-tools.append(soundBtn, fsBtn, settingsBtn);
+// Stop the game from the TV: back to the lobby, everyone stays in the room.
+const endBtn = el('button', 'endbtn hidden', '⏹ End game');
+endBtn.title = 'Stop this game and go back to the lobby';
+endBtn.addEventListener('click', () => askEnd());
+tools.append(soundBtn, fsBtn, settingsBtn, endBtn);
+
+/** First press arms it, a second press within a few seconds ends the game. */
+let endArmed = 0;
+function askEnd(): void {
+  if (room.pub.phase !== 'game') return;
+  if (Date.now() - endArmed > 3000) {
+    endArmed = Date.now();
+    endBtn.textContent = 'Click again to end';
+    endBtn.classList.add('armed');
+    showToast('End this game? Press again to go back to the lobby. Points from this game are not kept.', 3000);
+    setTimeout(() => {
+      if (Date.now() - endArmed >= 3000) {
+        endBtn.textContent = '⏹ End game';
+        endBtn.classList.remove('armed');
+      }
+    }, 3100);
+    return;
+  }
+  endArmed = 0;
+  endBtn.textContent = '⏹ End game';
+  endBtn.classList.remove('armed');
+  doAction({ act: 'menu' });
+}
 
 document.addEventListener('pointerdown', () => sfx.unlock());
 
@@ -320,7 +347,6 @@ function toLobby(): void {
 }
 
 // ---- Keyboard: the host can do everything the VIP can ----------------------------
-let escArmed = 0;
 document.addEventListener('keydown', (e) => {
   sfx.unlock();
   if (!modal.classList.contains('hidden')) {
@@ -338,11 +364,7 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     doAction({ act: 'start' });
   } else if (e.key === 'Escape' && ph !== 'lobby') {
-    if (ph === 'game' && Date.now() - escArmed > 2500) {
-      escArmed = Date.now();
-      showToast('Press Esc again to quit this game and go back to the menu.', 2500);
-      return;
-    }
+    if (ph === 'game') return askEnd();
     doAction({ act: 'menu' });
   }
 });
@@ -373,9 +395,11 @@ function render(p: StatePayload): void {
     } else view.update?.(main.firstElementChild as HTMLElement, c);
     lastShell = 'game';
     setTimer((p.game as any)?.timer ?? null, p.hostNow);
-    footer.innerHTML = `<span class="hint">${vipHint()} <kbd>Enter</kbd> skip · <kbd>Esc</kbd> menu</span>${scoreStrip()}`;
+    footer.innerHTML = `<span class="hint">${vipHint()} <kbd>Enter</kbd> skip · <kbd>Esc</kbd> end game</span>${scoreStrip()}`;
+    endBtn.classList.remove('hidden');
     return;
   }
+  endBtn.classList.add('hidden');
   setTimer(null, 0);
   current = null;
   const sig = JSON.stringify([ph, room.pub.players, room.pub.picked, room.pub.result, qrBig, room.pub.settings, live]);

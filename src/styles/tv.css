@@ -348,3 +348,8 @@ body.tv { overflow: hidden; background: radial-gradient(ellipse at 50% 0%, #2a1d
 .bot-ctl .btn { font-size: 20px; }
 .slot.bot { border-style: dotted; }
 .slot.bot .crown { color: var(--blue); }
+
+/* End the current game from the TV */
+.endbtn { height: 56px; padding: 0 18px; border-radius: 14px; border: 2px solid var(--line); background: var(--bg2); color: inherit; font: inherit; font-size: 20px; font-weight: 800; cursor: pointer; opacity: .8; white-space: nowrap; }
+.endbtn:hover { opacity: 1; border-color: var(--bad); }
+.endbtn.armed { opacity: 1; background: var(--bad); border-color: var(--bad); color: #fff; }

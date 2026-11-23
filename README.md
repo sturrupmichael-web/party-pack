@@ -32,7 +32,7 @@ Served at **https://michaelsturrup.com/party-pack/**:
 2. Players scan the QR code, or open `michaelsturrup.com/party-pack/join` and type the room code and a name.
 3. The first player to join is the **VIP** 👑. They pick a game and press Start on their phone. The host
    keyboard does the same: <kbd>←</kbd> <kbd>→</kbd> to pick, <kbd>Enter</kbd> to start / skip / continue,
-   <kbd>Esc</kbd> twice to quit a game back to the menu. During a game the VIP has Skip and Menu buttons.
+   <kbd>Esc</kbd> twice, or the **⏹ End game** button at the top of the TV (press it twice), stops a game and goes back to the lobby with everyone still in. During a game the VIP has Skip and Menu buttons.
 4. After each game the TV shows that game's points and the running total. Continue goes back to the menu;
    nobody has to rejoin.
 5. **Playing solo or short-handed?** Add bots with **🤖 Add bot** on the TV or the 🤖 − / + on the VIP's phone.
