@@ -19,6 +19,18 @@ function harness<T>(L: GameLogic<T>, n = 4) {
   };
 }
 
+describe('Swatch Watch rounds', () => {
+  it('everyone gives the cues twice, in the same rotation', () => {
+    for (const n of [3, 5, 8]) {
+      const ps = 'abcdefgh'.slice(0, n).split('').map((k) => ({ key: k, name: k }));
+      const s = S.setup(ps, { now: 0, rand: mulberry32(n), timer: 'normal', filter: true, active: ps.map((p) => p.key) }) as any;
+      expect(s.cuers).toHaveLength(2 * n);
+      expect(s.cuers.slice(n)).toEqual(s.cuers.slice(0, n));
+      expect(new Set(s.cuers.slice(0, n)).size).toBe(n);
+    }
+  });
+});
+
 describe('Swatch Watch', () => {
   it('names cells and scores by rings', () => {
     expect(cellName(0)).toBe('A1');

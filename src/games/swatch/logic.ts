@@ -32,6 +32,8 @@ export interface SwatchState {
 }
 
 const isSeat = (s: SwatchState, k: string) => s.seats.some((p) => p.key === k);
+/** How many times each player gives the cues. */
+export const CUE_TURNS = 2;
 const cuer = (s: SwatchState) => s.cuers[s.round];
 const guessers = (s: SwatchState, active: string[]) => active.filter((k) => isSeat(s, k) && k !== cuer(s));
 
@@ -101,7 +103,8 @@ export const swatchLogic: GameLogic<SwatchState> = {
 
   setup(players, ctx) {
     const order = shuffle(players, ctx.rand).map((p) => p.key);
-    const rounds = Math.min(8, Math.max(players.length, 4));
+    // Everyone is the cue-giver twice, taking turns in the same order both times.
+    const rounds = players.length * CUE_TURNS;
     const s: SwatchState = {
       seats: players,
       cuers: Array.from({ length: rounds }, (_, i) => order[i % order.length]),
