@@ -5,7 +5,7 @@ import { lookAtTv } from '../../ui/common';
 import { esc } from '../../ui/dom';
 import { DICE_EACH, POINT_RATE, ROUNDS } from './logic';
 import { type Quat, cubeSvg, drawCube, restQuat, rollBy, slerp } from './dice3d';
-import { BH, BW, CY, EDGES, GUTTER_MULT, HALF_FAR, HALF_NEAR, LAUNCH_X, MULT, POCKETS, POSTS, R, type Die, type Frame, halfWidth, stepAt } from './physics';
+import { BH, BW, CY, EDGES, HALF_FAR, HOLES, HALF_NEAR, LAUNCH_X, MULT, POCKETS, POSTS, R, type Die, type Frame, halfWidth, inHole, stepAt } from './physics';
 
 const who = (P: Player[], k: string | null | undefined) => P.find((p) => p.key === k);
 /** Step colours (surface, side face), launch pad first. */
@@ -27,23 +27,20 @@ function dieSvg(d: { id: number; x: number; y: number }, col: string, fresh = fa
 }
 const cubeOf = (n: Element | null) => n?.querySelector<SVGGElement>('.cube') ?? null;
 
-/** The ×4 step's pockets (×4) and the strips between them (×2), drawn over its slab. */
+/** The ×4 step: three pockets, with holes between them that dice drop through. */
 function pocketsSvg(): string {
   const x0 = EDGES[3];
   const x1 = EDGES[4];
   const o = 4 * DROP;
-  const band = (a: number, b: number, fill: string, stroke = '') =>
-    `<polygon points="${x0},${CY + a * halfWidth(x0) + o} ${x1},${CY + a * halfWidth(x1) + o} ${x1},${CY + b * halfWidth(x1) + o} ${x0},${CY + b * halfWidth(x0) + o}" fill="${fill}" ${stroke}/>`;
-  const edges = [-1, ...POCKETS.flat(), 1];
-  const gutters: string[] = [];
-  for (let i = 0; i < edges.length - 1; i += 2) gutters.push(band(edges[i], edges[i + 1], STEP_FILL[2][0]));
+  const pts = (a: number, b: number) =>
+    `${x0},${CY + a * halfWidth(x0) + o} ${x1},${CY + a * halfWidth(x1) + o} ${x1},${CY + b * halfWidth(x1) + o} ${x0},${CY + b * halfWidth(x0) + o}`;
   const mid = (x0 + x1) / 2;
   const tag = (u: number, t: string, size: number, fill: string) => `<text x="${mid}" y="${CY + u * halfWidth(mid) + o + size * 0.36}" text-anchor="middle" font-size="${size}" font-weight="900" fill="${fill}">${t}</text>`;
   return (
-    gutters.join('') +
-    POCKETS.map(([a, b]) => band(a, b, 'url(#tdpocket)', 'stroke="#fff" stroke-opacity=".55" stroke-width="4"')).join('') +
+    POCKETS.map(([a, b]) => `<polygon points="${pts(a, b)}" fill="url(#tdpocket)" stroke="#fff" stroke-opacity=".55" stroke-width="4"/>`).join('') +
+    HOLES.map(([a, b]) => `<polygon points="${pts(a, b)}" fill="url(#tdhole)" stroke="#ff4d6d" stroke-opacity=".7" stroke-width="3"/>`).join('') +
     POCKETS.map(([a, b]) => tag((a + b) / 2, `×${MULT[3]}`, 64, 'rgba(255,255,255,.55)')).join('') +
-    [-0.365, 0.365].map((u) => tag(u, `×${GUTTER_MULT}`, 40, 'rgba(255,255,255,.3)')).join('')
+    HOLES.map(([a, b]) => tag((a + b) / 2, '▼', 34, 'rgba(255,77,109,.75)')).join('')
   );
 }
 
@@ -85,6 +82,7 @@ function boardSvg(): string {
   return `<svg class="td-board" viewBox="-30 -24 ${BW + 60} ${BH + 4 * DROP + THICK + 70}">
     <defs>${grads.join('')}
       <radialGradient id="tdvoid" cx="0" cy=".5" r="1"><stop offset="0" stop-color="#ff4d6d" stop-opacity=".35"/><stop offset=".7" stop-color="#ff4d6d" stop-opacity="0"/></radialGradient>
+      <linearGradient id="tdhole" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#05030f"/><stop offset="1" stop-color="#1a0b1e"/></linearGradient>
       <linearGradient id="tdpocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff7ab8"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
       <filter id="tdblur"><feGaussianBlur stdDeviation="18"/></filter>
       <pattern id="tdstripe" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="24" fill="rgba(255,209,102,.16)"/></pattern></defs>
@@ -206,8 +204,9 @@ export const tumbleViews: GameViews = {
             steps[i] = st;
             if (gone && !fell[i]) {
               fell[i] = true;
-              n.classList.add(x >= EDGES[4] ? 'fall' : 'fade');
-              if (x >= EDGES[4]) c.sfx.bad();
+              const drop = x >= EDGES[4] || inHole(x, y);
+              n.classList.add(drop ? 'fall' : 'fade');
+              if (drop) c.sfx.bad();
             }
             if (face !== faces[i]) {
               faces[i] = face;
@@ -253,11 +252,8 @@ function flickPad(el: HTMLElement, c: PhoneViewCtx): void {
       <rect x="0" y="0" width="100" height="${(1 - EDGES[4] / BW) * 160}" fill="rgba(255,77,109,.18)"/>
       ${[0, ...EDGES].slice(0, 5).map((x0, k) => { const x1 = EDGES[k]; return `<polygon points="${miniPt(x0, -1)} ${miniPt(x1, -1)} ${miniPt(x1, 1)} ${miniPt(x0, 1)}" fill="${STEP_FILL[k][0]}" stroke="rgba(255,255,255,.25)" stroke-width=".6" vector-effect="non-scaling-stroke"/>`; }).join('')}
       ${(() => {
-        const e = [-1, ...POCKETS.flat(), 1];
         const band = (a: number, b: number, fill: string) => `<polygon points="${miniPt(EDGES[3], a)} ${miniPt(EDGES[4], a)} ${miniPt(EDGES[4], b)} ${miniPt(EDGES[3], b)}" fill="${fill}"/>`;
-        const out: string[] = [];
-        for (let i = 0; i < e.length - 1; i += 2) out.push(band(e[i], e[i + 1], STEP_FILL[2][0]));
-        return out.join('');
+        return HOLES.map(([a, b]) => band(a, b, '#05030f')).join('');
       })()}
       ${MULT.slice(0, 3).map((m, i) => `<text x="50" y="${160 - ((EDGES[i] + EDGES[i + 1]) / 2 / BW) * 160 + 4}" font-size="11" text-anchor="middle" fill="rgba(255,255,255,.4)" font-weight="900">×${m}</text>`).join('')}
       ${POCKETS.map(([a, b]) => `<text x="${((CY + ((a + b) / 2) * halfWidth(1310)) / BH) * 100}" y="${160 - (1310 / BW) * 160 + 3}" font-size="7" text-anchor="middle" fill="rgba(255,255,255,.75)" font-weight="900">×4</text>`).join('')}

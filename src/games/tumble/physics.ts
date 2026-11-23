@@ -2,7 +2,8 @@
  * A tiny top-down dice simulation for Tumble Steps. The board runs left to
  * right: a narrow launch pad, then four steps (×1 to ×4) that fan out wider
  * as they go, then the drop-off. The last step is broken up: only three
- * pockets across it pay ×4, the strips between them pay ×2.
+ * pockets across it pay ×4, and the gaps between them are holes: drop in
+ * one and the die is out, same as going off the end.
  *
  * Dice only ever go down: each step's front edge is a wall for the dice below
  * it, so a bounce or a knock can never carry a die back up a level.
@@ -33,16 +34,25 @@ export const POSTS: Array<[number, number, number]> = [
 ];
 
 /**
- * The ×4 step's pockets, as bands across the board: -1 is the top rail, 1 the
- * bottom rail. A die whose centre sits in a pocket scores ×4; elsewhere on
- * that step, ×2.
+ * The ×4 step is three pockets with two holes between them, as bands across
+ * the board: -1 is the top rail, 1 the bottom rail. A die whose centre goes
+ * over a hole drops through it, like going off the end.
  */
-export const POCKETS: Array<[number, number]> = [
-  [-0.9, -0.56],
-  [-0.17, 0.17],
-  [0.56, 0.9],
+export const HOLES: Array<[number, number]> = [
+  [-0.52, -0.2],
+  [0.2, 0.52],
 ];
-export const GUTTER_MULT = 2;
+export const POCKETS: Array<[number, number]> = [
+  [-1, HOLES[0][0]],
+  [HOLES[0][1], HOLES[1][0]],
+  [HOLES[1][1], 1],
+];
+/** Is (x, y) over one of the holes in the ×4 step? */
+export function inHole(x: number, y: number): boolean {
+  if (stepAt(x) !== 3) return false;
+  const u = (y - CY) / halfWidth(x);
+  return HOLES.some(([a, b]) => u > a && u < b);
+}
 
 /** Half the board's width at x: it fans out from the launch pad to the last step. */
 export function halfWidth(x: number): number {
@@ -134,9 +144,7 @@ export function stepAt(x: number): number {
 export function multAt(x: number, y: number): number {
   const s = stepAt(x);
   if (s < 0 || s > 3) return 0;
-  if (s < 3) return MULT[s];
-  const u = (y - CY) / halfWidth(x);
-  return POCKETS.some(([a, b]) => u >= a && u <= b) ? MULT[3] : GUTTER_MULT;
+  return inHole(x, y) ? 0 : MULT[s];
 }
 
 export function dieScore(d: Die): number {
@@ -213,8 +221,13 @@ export function simulate(dice: Die[], thrown: Die, t: Throw, rand: () => number)
       const after = stepAt(d.x);
       if (after > floor[i]) floor[i] = Math.min(after, 3);
       keepDown(i);
+      if (after === 3 && inHole(d.x, d.y)) {
+        d.gone = true;
+        v[i] = { x: 0, y: 0 };
+        continue;
+      }
       if (after !== before && after > before) {
-        if (after === 4) {
+        if (after === 4 || inHole(d.x, d.y)) {
           d.gone = true;
           v[i] = { x: 0, y: 0 };
           continue;

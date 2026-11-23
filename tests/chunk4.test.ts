@@ -147,14 +147,28 @@ describe('Tumble Steps', () => {
 });
 
 describe('Tumble Steps rolling and the ×4 pockets', () => {
-  it('only the pockets on the last step pay ×4; the strips between pay ×2', async () => {
+  it('the last step is three ×4 pockets with holes between them', async () => {
     const { multAt, EDGES: E, CY: cy, halfWidth: hw } = await import('../src/games/tumble/physics');
     const x = (E[3] + E[4]) / 2;
     expect(multAt(x, cy)).toBe(4);
-    expect(multAt(x, cy + 0.36 * hw(x))).toBe(2);
+    expect(multAt(x, cy + 0.36 * hw(x))).toBe(0);
+    expect(multAt(x, cy - 0.95 * hw(x))).toBe(4);
     expect(multAt(x, cy - 0.7 * hw(x))).toBe(4);
     expect(multAt((E[2] + E[3]) / 2, cy + 0.36 * hw(x))).toBe(3);
     expect(multAt(E[4] + 5, cy)).toBe(0);
+  });
+
+  it('a die rolled at a hole drops through it', async () => {
+    const P = await import('../src/games/tumble/physics');
+    let dropped = 0;
+    for (let seed = 1; seed <= 200; seed++) {
+      const r = mulberry32(seed);
+      const d = { id: 1, owner: 'a', face: 1, x: 0, y: 0, gone: false };
+      P.simulate([], d, { aim: (r() - 0.5) * 1.2, power: 0.8 + r() * 0.15, lane: r() }, mulberry32(seed));
+      if (!d.gone) expect(P.inHole(d.x, d.y)).toBe(false);
+      else if (d.x < P.EDGES[4]) dropped++;
+    }
+    expect(dropped).toBeGreaterThan(0);
   });
 
   it('a die tips one face per roll length, and its faces stay a real die', async () => {
