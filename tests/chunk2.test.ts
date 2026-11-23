@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GameCtx, GameLogic } from '../src/core/game';
 import { mulberry32 } from '../src/core/rng';
 import { CUE_POINTS, markPoints, swatchLogic as S } from '../src/games/swatch/logic';
-import { COLS, cellName, idx } from '../src/games/swatch/grid';
+import { COLS, ROWS, cellName, idx } from '../src/games/swatch/grid';
 import { WIN_POINTS, WORDS, coverLogic as C } from '../src/games/cover/logic';
 
 function harness<T>(L: GameLogic<T>, n = 4) {
@@ -43,13 +43,13 @@ describe('Swatch Watch', () => {
     expect(h.s.phase).toBe('guess1');
     const t = opts[0];
     h.input(g[0], { t: 'mark', i: t, round: 0 });
-    h.input(g[1], { t: 'mark', i: t + 1 < COLS * 12 ? t + 1 : t - 1, round: 0 });
-    h.input(g[2], { t: 'mark', i: (t + 12 * 0 + 6) % (COLS * 12), round: 0 });
+    h.input(g[1], { t: 'mark', i: t + 1 < COLS * ROWS ? t + 1 : t - 1, round: 0 });
+    h.input(g[2], { t: 'mark', i: (t + 6) % (COLS * ROWS), round: 0 });
     expect(h.s.phase).toBe('clue2');
     h.input(cuer, { t: 'clue', text: 'clear summer', round: 0 });
     expect(h.s.phase).toBe('guess2');
     expect(h.input(g[0], { t: 'mark', i: t, round: 0 })).toBe(false); // can't stack on your own mark
-    for (const k of g) h.input(k, { t: 'mark', i: t, round: 0 }) || h.input(k, { t: 'mark', i: (t + 3 * COLS) % (COLS * 12), round: 0 });
+    for (const k of g) h.input(k, { t: 'mark', i: t, round: 0 }) || h.input(k, { t: 'mark', i: (t + 3 * COLS) % (COLS * ROWS), round: 0 });
     expect(h.s.phase).toBe('reveal');
     expect((S.publicState(h.s, h.ctx()) as any).target).toBe(t);
     expect(h.s.last[cuer]).toBeGreaterThanOrEqual(3 * CUE_POINTS);

@@ -1,11 +1,11 @@
-/** The Swatch Watch colour grid: 24 hues across, 12 shades down (light at the top). */
-export const COLS = 24;
-export const ROWS = 12;
-export const ROW_LABELS = 'ABCDEFGHJKLM'; // no I, so it can't be mistaken for 1
+/** The Swatch Watch colour grid: 32 hues across, 18 shades down (light at the top). 576 colours. */
+export const COLS = 32;
+export const ROWS = 18;
+export const ROW_LABELS = 'ABCDEFGHJKLMNPQRST'; // no I or O, so they can't be mistaken for 1 and 0
 
 export function cellColor(r: number, c: number): string {
   const h = Math.round((c * 360) / COLS);
-  const l = Math.round(88 - r * 5.6);
+  const l = Math.round(88 - (r * 62) / (ROWS - 1));
   const s = 62 + Math.round(30 * Math.sin((Math.PI * (r + 1)) / (ROWS + 1)));
   return `hsl(${h} ${s}% ${l}%)`;
 }
