@@ -162,7 +162,7 @@ function phoneView(): GameViews['phone'] {
           <div class="clue-mid small">${clueLine(p.clues)}</div>
           ${gridHtml({ cls: 'mini', marks: Object.fromEntries(mine.map((m) => [m, '<b class="mk"></b>'])) })}
           <div class="sw-zoom">${zoom.join('')}</div>
-          <button class="btn primary huge" data-lock ${mine.includes(sel) ? 'disabled' : ''}>Mark ${cellName(sel)}</button>
+          <button class="btn primary huge" data-lock ${mine.includes(sel) ? 'disabled' : ''}>${mine.includes(sel) ? `${cellName(sel)} is marked: pick another` : `Mark ${cellName(sel)}`}</button>
         </div>`;
         el.querySelector<HTMLElement>(`.sw-grid i[data-i="${sel}"]`)?.classList.add('sel');
         el.querySelectorAll<HTMLElement>('.sw-grid i').forEach((cell) => cell.addEventListener('click', () => ((sel = Number(cell.dataset.i)), view.mount(el, c))));
