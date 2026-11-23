@@ -19,6 +19,42 @@ import { avatar, color } from '../ui/avatars';
 import { lookAtTv } from '../ui/common';
 import { clock } from '../ui/components';
 import { el, esc, store } from '../ui/dom';
+import { BUILD } from '../core/build';
+
+/**
+ * The TV and this phone must run the same version, or they read game data
+ * differently (e.g. a resized grid). Newer TV: reload this phone once. Older
+ * TV: ask for a TV refresh and hold the game screen until it happens.
+ */
+let staleTv: HTMLElement | null = null;
+function versionCheck(hostBuild: number | undefined): boolean {
+  if (!BUILD || hostBuild === BUILD) {
+    staleTv?.remove();
+    staleTv = null;
+    return false;
+  }
+  if (hostBuild && hostBuild > BUILD) {
+    const k = `pp-reloaded-${hostBuild}`;
+    try {
+      if (!sessionStorage.getItem(k)) {
+        sessionStorage.setItem(k, '1');
+        location.reload();
+        return true;
+      }
+    } catch {
+      /* no storage: ask instead */
+    }
+  }
+  const tvOld = !hostBuild || hostBuild < BUILD;
+  if (!staleTv) {
+    staleTv = el('div', 'stale-tv');
+    document.body.append(staleTv);
+  }
+  staleTv.innerHTML = tvOld
+    ? `<div><b>📺 Refresh the TV</b><p>The game was updated, and the TV is still on the old version. Reload the page on the TV and you'll all carry on, scores kept.</p></div>`
+    : `<div><b>📱 Refresh this page</b><p>The game was updated. Reload this page to catch up; you'll keep your seat and score.</p></div>`;
+  return true;
+}
 
 const SESSION_KEY = 'partypack.session';
 const SESSION_MAX_AGE = 6 * 3600 * 1000;
@@ -315,6 +351,7 @@ function play(room: string, myName: string): void {
     if (m.from !== 'host') return;
     if (m.type === 'state') {
       st = m.payload;
+      if (versionCheck(st.build)) return;
       skew = Date.now() - st.hostNow;
       lastStateAt = Date.now();
       cover.classList.add('hidden');

@@ -48,6 +48,8 @@ export interface StatePayload {
   priv: Record<string, unknown>;
   /** Host clock when sent, so phones can correct for clock skew on timers. */
   hostNow: number;
+  /** The TV's build time. A phone on a different build reloads or asks for a TV refresh. */
+  build?: number;
 }
 
 export type HostMsg =

@@ -6,6 +6,8 @@ import { defineConfig } from 'vite';
 //   /party-pack/join/   the phone controller
 export default defineConfig({
   base: process.env.VITE_BASE ?? '/party-pack/',
+  // Build time: the TV and phones compare it so they never mix versions.
+  define: { __BUILD__: JSON.stringify(Date.now()) },
   build: {
     rollupOptions: {
       input: {

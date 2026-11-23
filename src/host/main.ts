@@ -29,6 +29,7 @@ import {
   sweep,
   touch,
 } from '../core/room';
+import { BUILD } from '../core/build';
 import { mulberry32 } from '../core/rng';
 import { GAMES, gameById, seatsFor } from '../games';
 import { trackPresence } from '../net/presence';
@@ -45,6 +46,7 @@ interface Saved {
   room: HostRoom;
   game: unknown;
   at: number;
+  build?: number;
 }
 
 function loadSaved(): Saved | null {
@@ -145,7 +147,7 @@ function payload(): StatePayload {
       if (v != null) priv[p.key] = v;
     }
   }
-  return { room: room.pub, game: gamePub, priv, hostNow: c.now };
+  return { room: room.pub, game: gamePub, priv, hostNow: c.now, build: BUILD };
 }
 
 /** Send state now, or soon if we just sent (Realtime has a message budget). */
@@ -164,7 +166,7 @@ function broadcast(): void {
 
 function save(): void {
   try {
-    const s: Saved = { room, game: game ? { id: game.mod.logic.id, state: game.state } : null, at: Date.now() };
+    const s: Saved = { room, game: game ? { id: game.mod.logic.id, state: game.state } : null, at: Date.now(), build: BUILD };
     store.set(SAVE_KEY, JSON.stringify(s));
   } catch {
     /* ignore */
@@ -617,8 +619,15 @@ async function boot(): Promise<void> {
     room.lastSeen = {};
     const g = saved.game as { id: string; state: unknown } | null;
     const mod = g ? gameById(g.id) : undefined;
-    if (mod && room.pub.phase === 'game') game = { mod, state: g!.state };
-    else if (room.pub.phase === 'game') room.pub.phase = 'lobby';
+    // A game saved by an older version may not fit this one (Swatch Watch's grid changed size),
+    // so only resume it on the same build. Players and scores always carry over.
+    if (mod && room.pub.phase === 'game' && saved.build === BUILD) game = { mod, state: g!.state };
+    else if (room.pub.phase === 'game') {
+      room.pub.phase = 'lobby';
+      room.pub.gameId = null;
+      room.pub.inst = null;
+      if (saved.build !== BUILD) showToast('The game was updated, so that round was ended. Scores are kept.', 6000);
+    }
     transport = createTransport(room.pub.room, { host: true });
     void transport.otherHosts();
   } else {
